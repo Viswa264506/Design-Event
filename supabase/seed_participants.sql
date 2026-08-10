@@ -50,6 +50,29 @@ begin
       );
     end if;
 
+    -- Create corresponding identity in auth.identities (Required for Supabase GoTrue Auth)
+    insert into auth.identities (
+      id,
+      user_id,
+      identity_data,
+      provider,
+      provider_id,
+      last_sign_in_at,
+      created_at,
+      updated_at
+    )
+    values (
+      gen_random_uuid(),
+      v_uuid,
+      jsonb_build_object('sub', v_uuid::text, 'email', v_email),
+      'email',
+      v_uuid::text,
+      now(),
+      now(),
+      now()
+    )
+    on conflict do nothing;
+
     -- 2. Insert or update the public profiles in participants table
     insert into public.participants (
       id,
@@ -68,3 +91,29 @@ begin
       name = excluded.name;
   end loop;
 end $$;
+
+-- Fix script for existing users missing auth identities
+insert into auth.identities (
+  id,
+  user_id,
+  identity_data,
+  provider,
+  provider_id,
+  last_sign_in_at,
+  created_at,
+  updated_at
+)
+select
+  gen_random_uuid(),
+  id,
+  jsonb_build_object('sub', id::text, 'email', email),
+  'email',
+  id::text,
+  now(),
+  now(),
+  now()
+from auth.users u
+where not exists (
+  select 1 from auth.identities i where i.user_id = u.id
+);
+

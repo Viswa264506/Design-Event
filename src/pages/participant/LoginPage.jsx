@@ -42,6 +42,8 @@ const LoginPage = () => {
         friendlyError = 'This roll number is already active on another device.';
       } else if (friendlyError.includes('Already completed')) {
         friendlyError = 'You have already completed Round 1.';
+      } else if (friendlyError.includes('Database error querying schema')) {
+        friendlyError = 'Database identity error: The user account in auth.users is missing a record in auth.identities. Please run the SQL fix script in Supabase.';
       }
       setError(friendlyError);
     } else {
