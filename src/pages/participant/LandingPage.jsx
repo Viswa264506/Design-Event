@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const year = import.meta.env.VITE_APP_YEAR || '2';
 
   return (
     <div className="min-h-screen bg-[#0d0e12] text-gray-100 flex flex-col justify-between font-sans overflow-hidden relative">
@@ -20,9 +19,6 @@ const LandingPage = () => {
           <span className="font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
             DESIGN FEST 2026
           </span>
-        </div>
-        <div className="px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase border border-purple-500/30 bg-purple-500/10 text-purple-400">
-          Year {year} Edition
         </div>
       </header>
 

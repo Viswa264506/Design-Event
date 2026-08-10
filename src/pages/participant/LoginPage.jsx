@@ -9,7 +9,6 @@ const LoginPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, loginParticipant, loading } = useAuth();
   const navigate = useNavigate();
-  const year = import.meta.env.VITE_APP_YEAR || '2';
 
   // Redirect if already logged in
   useEffect(() => {
@@ -58,10 +57,7 @@ const LoginPage = () => {
 
       <div className="w-full max-w-md p-8 rounded-2xl bg-gray-900/40 border border-gray-800 backdrop-blur-md shadow-2xl relative">
         
-        {/* Year Label */}
-        <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
-          Year {year}
-        </div>
+
 
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-indigo-500/20 mb-4">

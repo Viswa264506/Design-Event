@@ -5,7 +5,7 @@ import { Users, Play, CheckCircle, Clock, Download, RefreshCw, LogOut } from 'lu
 
 const AdminDashboardPage = () => {
   const { logout } = useAuth();
-  const [yearFilter, setYearFilter] = useState(''); // '' (All), '2', '3'
+
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
@@ -19,10 +19,9 @@ const AdminDashboardPage = () => {
 
   const fetchDashboardData = async () => {
     setLoading(true);
-    const filterVal = yearFilter ? parseInt(yearFilter, 10) : null;
     
-    const statsRes = await getAdminStatsService(filterVal);
-    const leaderRes = await getAdminLeaderboardService(filterVal);
+    const statsRes = await getAdminStatsService();
+    const leaderRes = await getAdminLeaderboardService();
 
     if (statsRes.data) setStats(statsRes.data);
     if (leaderRes.data) {
@@ -71,7 +70,7 @@ const AdminDashboardPage = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [yearFilter]);
+  }, []);
 
   const formatDuration = (ms) => {
     if (ms === null || ms === undefined || ms === Infinity) return '--:--';
@@ -84,12 +83,11 @@ const AdminDashboardPage = () => {
   const handleExportCSV = () => {
     if (!leaderboard.length) return;
 
-    const headers = ['Rank', 'Roll Number', 'Name', 'Year', 'Score', 'Duration', 'Status'];
+    const headers = ['Rank', 'Roll Number', 'Name', 'Score', 'Duration', 'Status'];
     const rows = leaderboard.map((p, idx) => [
       idx + 1,
       p.roll_number,
       p.name,
-      p.year,
       Number(p.final_score).toFixed(2),
       formatDuration(p.durationMs),
       p.status
@@ -102,7 +100,7 @@ const AdminDashboardPage = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `leaderboard_year_${yearFilter || 'all'}.csv`);
+    link.setAttribute("download", `leaderboard_all.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -149,29 +147,7 @@ const AdminDashboardPage = () => {
           </div>
         </header>
 
-        {/* Filters and Stats Widgets */}
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="flex gap-2 bg-[#14151a] p-1 border border-gray-800 rounded-xl w-full md:w-auto">
-            <button
-              onClick={() => setYearFilter('')}
-              className={`flex-1 md:flex-initial px-4 py-2 text-xs font-bold rounded-lg transition cursor-pointer ${yearFilter === '' ? 'bg-indigo-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
-            >
-              All Years
-            </button>
-            <button
-              onClick={() => setYearFilter('2')}
-              className={`flex-1 md:flex-initial px-4 py-2 text-xs font-bold rounded-lg transition cursor-pointer ${yearFilter === '2' ? 'bg-indigo-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
-            >
-              2nd Year
-            </button>
-            <button
-              onClick={() => setYearFilter('3')}
-              className={`flex-1 md:flex-initial px-4 py-2 text-xs font-bold rounded-lg transition cursor-pointer ${yearFilter === '3' ? 'bg-indigo-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
-            >
-              3rd Year
-            </button>
-          </div>
-        </div>
+
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
@@ -250,7 +226,7 @@ const AdminDashboardPage = () => {
                     <th className="px-6 py-3.5">Rank</th>
                     <th className="px-6 py-3.5">Roll Number</th>
                     <th className="px-6 py-3.5">Name</th>
-                    <th className="px-6 py-3.5">Year</th>
+
                     <th className="px-6 py-3.5">Score</th>
                     <th className="px-6 py-3.5">Completion Speed</th>
                     <th className="px-6 py-3.5">Status</th>
@@ -276,9 +252,7 @@ const AdminDashboardPage = () => {
                         <td className="px-6 py-4 text-gray-300 font-medium">
                           {p.name}
                         </td>
-                        <td className="px-6 py-4 text-gray-400 font-bold">
-                          Year {p.year}
-                        </td>
+
                         <td className="px-6 py-4">
                           <span className={`font-black text-sm ${hasSubmitted ? 'text-indigo-400' : 'text-gray-650'}`}>
                             {hasSubmitted ? Number(p.final_score).toFixed(2) : '0.00'}

@@ -1,14 +1,13 @@
 -- Alter participants table to add active_session_id
 alter table public.participants 
-add column active_session_id uuid default null;
+add column if not exists active_session_id uuid default null;
 
--- Atomic participant login verification function
-create or replace function public.authenticate_participant(p_roll_number text, p_year integer)
+-- Atomic participant login verification function (no year parameters or ranges required)
+create or replace function public.authenticate_participant(p_roll_number text)
 returns jsonb security definer as $$
 declare
   v_participant record;
   v_session_id uuid;
-  v_allowed boolean := false;
 begin
   -- 1. Format/validate roll number format
   p_roll_number := upper(trim(p_roll_number));
@@ -17,22 +16,7 @@ begin
     return jsonb_build_object('success', false, 'error', 'Invalid roll number: Please enter a valid registration roll number.');
   end if;
 
-  -- 2. Enforce year-specific allowed ranges
-  if p_year = 2 then
-    -- Year 2 range: 264001 through 264060
-    if p_roll_number ~ '^\d+$' and p_roll_number::integer >= 264001 and p_roll_number::integer <= 264060 then
-      v_allowed := true;
-    end if;
-  elsif p_year = 3 then
-    -- Year 3 range: No range constraints yet (allowed if pre-registered in database)
-    v_allowed := true;
-  end if;
-
-  if not v_allowed then
-    return jsonb_build_object('success', false, 'error', 'Invalid roll number: Outside allowed range.');
-  end if;
-
-  -- 3. Check if participant exists in the database (Pre-registered constraint)
+  -- 2. Check if participant exists in the database (Pre-registered constraint)
   -- Perform Row Lock SELECT FOR UPDATE to prevent race conditions on concurrent authentications
   select * into v_participant 
   from public.participants 
@@ -43,22 +27,17 @@ begin
     return jsonb_build_object('success', false, 'error', 'Not registered: This roll number is not registered for this event.');
   end if;
 
-  -- 4. Check if year matches
-  if v_participant.year != p_year then
-    return jsonb_build_object('success', false, 'error', 'Wrong year: This participant is not registered for this year''s competition.');
-  end if;
-
-  -- 5. Check if already completed
+  -- 3. Check if already completed
   if v_participant.status = 'submitted' or v_participant.submitted_at is not null then
     return jsonb_build_object('success', false, 'error', 'Already completed: You have already completed Round 1.');
   end if;
 
-  -- 6. Check if session is already active on another device
+  -- 4. Check if session is already active on another device
   if v_participant.active_session_id is not null then
     return jsonb_build_object('success', false, 'error', 'Already active: This roll number is already active on another device.');
   end if;
 
-  -- 7. Atomic session creation
+  -- 5. Atomic session creation
   v_session_id := gen_random_uuid();
   update public.participants
   set 
@@ -87,5 +66,5 @@ end;
 $$ language plpgsql;
 
 -- Grant execution to public client roles
-grant execute on function public.authenticate_participant(text, integer) to anon, authenticated;
+grant execute on function public.authenticate_participant(text) to anon, authenticated;
 grant execute on function public.release_participant_session(uuid) to anon, authenticated;

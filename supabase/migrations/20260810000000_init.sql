@@ -25,7 +25,6 @@ create table public.participants (
     id uuid references auth.users on delete cascade primary key,
     roll_number text unique not null,
     name text not null,
-    year integer not null check (year in (2, 3)),
     started_at timestamp with time zone,
     submitted_at timestamp with time zone,
     final_score numeric(5,2) default 0.00 not null,
@@ -91,20 +90,10 @@ create policy "Admins can read/write task answers"
 
 -- Participants Policies
 create policy "Participants can read their own record"
-    on public.participants for select to authenticated using (auth.uid() = id);
-
-create policy "Participants can update their own started_at and status when starting"
-    on public.participants for update to authenticated using (
-        auth.uid() = id
-    ) with check (
-        -- Can only change status from pending to started and record started_at once
-        (old.status = 'pending' and new.status = 'started' and old.started_at is null and new.started_at is not null) or
-        -- Or let Edge Function update score/submitted_at/status to submitted (using service_role, which bypasses RLS, so this policy doesn't need to allow it)
-        is_admin()
-    );
-
+     on public.participants for select to authenticated using (auth.uid() = id);
+ 
 create policy "Admins can manage participants"
-    on public.participants for all to authenticated using (is_admin());
+     on public.participants for all to authenticated using (is_admin());
 
 -- Submissions Policies
 create policy "Participants can insert their own submission if active"
@@ -138,6 +127,6 @@ create policy "Admins can manage task results"
     on public.task_results for all to authenticated using (is_admin());
 
 -- CREATE INDEXES FOR PERFORMANCE --
-create index idx_participants_roll_year on public.participants(year, roll_number);
+create index idx_participants_roll on public.participants(roll_number);
 create index idx_submissions_participant_id on public.submissions(participant_id);
 create index idx_task_results_submission_id on public.task_results(submission_id);

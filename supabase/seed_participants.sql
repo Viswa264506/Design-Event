@@ -1,5 +1,5 @@
--- Seed script to register the 60 Year-2 participants (264001 to 264060)
--- This creates Auth accounts and database profiles simultaneously.
+-- Seed script to register the 60 pre-registered participants (264001 to 264060)
+-- This creates Auth accounts and database profiles simultaneously without year constraints.
 
 do $$
 declare
@@ -55,19 +55,16 @@ begin
       id,
       roll_number,
       name,
-      year,
       status
     )
     values (
       v_uuid,
       v_roll,
       'Participant ' || v_roll,
-      2,
       'pending'
     )
     on conflict (id) do update set
       roll_number = excluded.roll_number,
-      name = excluded.name,
-      year = excluded.year;
+      name = excluded.name;
   end loop;
 end $$;

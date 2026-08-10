@@ -69,14 +69,12 @@ export const formatRollNumberToEmail = (rollNumber) => {
  * Roll numbers are translated to virtual emails.
  */
 export const loginParticipantService = async (rollNumber) => {
-  const year = parseInt(import.meta.env.VITE_APP_YEAR || '2', 10);
   const formattedRoll = rollNumber.trim().toUpperCase();
 
   try {
     // 1. Call database RPC function to authenticate atomically and acquire active session lock
     const { data: rpcData, error: rpcError } = await supabase.rpc('authenticate_participant', {
-      p_roll_number: formattedRoll,
-      p_year: year
+      p_roll_number: formattedRoll
     });
 
     if (rpcError) {
@@ -243,12 +241,9 @@ export const getSubmissionResult = async (participantId) => {
 /**
  * Admin: Get active dashboard metrics
  */
-export const getAdminStatsService = async (yearFilter) => {
-  // Fetch participants for the year
+export const getAdminStatsService = async () => {
+  // Fetch participants
   let query = supabase.from('participants').select('id, status, final_score');
-  if (yearFilter) {
-    query = query.eq('year', yearFilter);
-  }
   const { data: participants, error } = await query;
 
   if (error) return { error };
@@ -277,15 +272,11 @@ export const getAdminStatsService = async (yearFilter) => {
 /**
  * Admin: Get Leaderboard
  */
-export const getAdminLeaderboardService = async (yearFilter) => {
+export const getAdminLeaderboardService = async () => {
   let query = supabase
     .from('participants')
-    .select('id, roll_number, name, year, final_score, started_at, submitted_at, status')
+    .select('id, roll_number, name, final_score, started_at, submitted_at, status')
     .order('final_score', { ascending: false });
-
-  if (yearFilter) {
-    query = query.eq('year', yearFilter);
-  }
 
   const { data, error } = await query;
   return { data, error };
