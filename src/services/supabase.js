@@ -85,25 +85,13 @@ export const loginParticipantService = async (rollNumber) => {
       throw new Error(rpcData.error || 'Access denied.');
     }
 
-    // 2. Lock confirmed, sign in via Supabase Auth using deterministic credentials
-    const email = formatRollNumberToEmail(rollNumber);
-    const password = `Pass_${rollNumber.trim().toLowerCase()}_Fest2026!`;
-
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (authError) {
-      // If auth sign-in fails, immediately release the session lock in database
-      await supabase.rpc('release_participant_session', { p_user_id: rpcData.user_id });
-      throw authError;
-    }
-
-    // 3. Store active session ID in sessionStorage
+    // 2. Store active session details in sessionStorage
     sessionStorage.setItem('design_event_session_id', rpcData.session_id);
+    sessionStorage.setItem('design_event_user_id', rpcData.user_id);
 
-    return { user: data.user, session: data.session, session_id: rpcData.session_id };
+    const user = { id: rpcData.user_id, roll_number: formattedRoll };
+
+    return { user, session_id: rpcData.session_id };
   } catch (error) {
     return { error };
   }
@@ -114,16 +102,21 @@ export const loginParticipantService = async (rollNumber) => {
  */
 export const logoutParticipantService = async () => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      // Call RPC to clear active session in database
-      await supabase.rpc('release_participant_session', { p_user_id: session.user.id });
+    const userId = sessionStorage.getItem('design_event_user_id');
+    if (userId) {
+      await supabase.rpc('release_participant_session', { p_user_id: userId });
+    } else {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await supabase.rpc('release_participant_session', { p_user_id: session.user.id });
+      }
     }
   } catch (e) {
     console.error('Failed to release participant session:', e);
   } finally {
-    await supabase.auth.signOut();
     sessionStorage.removeItem('design_event_session_id');
+    sessionStorage.removeItem('design_event_user_id');
+    await supabase.auth.signOut();
   }
 };
 
@@ -203,9 +196,25 @@ export const getTasksService = async () => {
  */
 export const submitDesignService = async (designJson, sessionId) => {
   try {
-    // Invoke edge function
+    const activeSessionId = sessionId || sessionStorage.getItem('design_event_session_id') || '';
+
+    // 1. Call database RPC evaluation function directly for atomic, instant server-side scoring
+    const { data: rpcData, error: rpcError } = await supabase.rpc('evaluate_submission_rpc', {
+      p_design_json: designJson,
+      p_session_id: activeSessionId
+    });
+
+    if (!rpcError && rpcData?.success) {
+      return { data: rpcData, error: null };
+    }
+
+    if (rpcError && !rpcError.message.includes('Could not find')) {
+      throw new Error(rpcError.message);
+    }
+
+    // 2. Fallback to Edge Function invocation
     const { data, error } = await supabase.functions.invoke('evaluate-submission', {
-      body: { designJson, sessionId }
+      body: { designJson, sessionId: activeSessionId }
     });
 
     if (error) throw error;
@@ -279,5 +288,29 @@ export const getAdminLeaderboardService = async () => {
     .order('final_score', { ascending: false });
 
   const { data, error } = await query;
+  return { data, error };
+};
+
+/**
+ * General: Get event settings
+ */
+export const getEventSettingsService = async () => {
+  const { data, error } = await supabase
+    .from('event_settings')
+    .select('*')
+    .eq('id', 'round_1')
+    .maybeSingle();
+
+  return { data, error };
+};
+
+/**
+ * Admin: Update event status (SCHEDULED -> LIVE -> CLOSED)
+ */
+export const updateEventStatusService = async (newStatus) => {
+  const { data, error } = await supabase.rpc('update_event_status', {
+    p_status: newStatus,
+  });
+
   return { data, error };
 };

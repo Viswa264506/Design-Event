@@ -71,7 +71,7 @@ begin
       now(),
       now()
     )
-    on conflict do nothing;
+    on conflict (provider_id, provider) do nothing;
 
     -- 2. Insert or update the public profiles in participants table
     insert into public.participants (

@@ -148,14 +148,7 @@ serve(async (req) => {
   }
 
   try {
-    const authHeader = req.headers.get('Authorization')!;
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
+    const authHeader = req.headers.get('Authorization') ?? '';
     const token = authHeader.replace('Bearer ', '');
 
     // Setup Supabase with Service Role to write results and bypass RLS constraints
@@ -163,15 +156,6 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
-
-    // Verify JWT and get user ID
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Invalid authentication credentials' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
 
     const { designJson, sessionId } = await req.json();
     if (!designJson) {
@@ -181,24 +165,36 @@ serve(async (req) => {
       });
     }
 
-    // Fetch participant details
-    const { data: participant, error: profileErr } = await supabaseClient
-      .from('participants')
-      .select('*')
-      .eq('id', user.id)
-      .single();
+    let userId: string | null = null;
 
-    if (profileErr || !participant) {
-      return new Response(JSON.stringify({ error: 'Participant profile not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    // 1. Try extracting user from JWT if available
+    if (token && token !== Deno.env.get('SUPABASE_ANON_KEY')) {
+      const { data: { user } } = await supabaseClient.auth.getUser(token);
+      if (user) userId = user.id;
     }
 
-    // Verify session ID matches active lock
-    if (!sessionId || participant.active_session_id !== sessionId) {
-      return new Response(JSON.stringify({ error: 'Session expired or active on another device.' }), {
-        status: 403,
+    // 2. Fetch participant details by user ID or active session ID lock
+    let participant: any = null;
+
+    if (userId) {
+      const { data: p } = await supabaseClient
+        .from('participants')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+      participant = p;
+    } else if (sessionId) {
+      const { data: p } = await supabaseClient
+        .from('participants')
+        .select('*')
+        .eq('active_session_id', sessionId)
+        .maybeSingle();
+      participant = p;
+    }
+
+    if (!participant) {
+      return new Response(JSON.stringify({ error: 'Participant session expired or not found' }), {
+        status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -229,7 +225,7 @@ serve(async (req) => {
       await supabaseClient
         .from('participants')
         .update({ status: 'submitted', submitted_at: new Date().toISOString(), active_session_id: null })
-        .eq('id', user.id);
+        .eq('id', participant.id);
 
       return new Response(JSON.stringify({ error: 'Timer expired. Submission rejected.' }), {
         status: 403,
@@ -276,7 +272,7 @@ serve(async (req) => {
     const { data: subRecord, error: subWriteErr } = await supabaseClient
       .from('submissions')
       .insert({
-        participant_id: user.id,
+        participant_id: participant.id,
         design_json: designJson,
         total_score: totalScore,
         submitted_at: submissionTime,
@@ -314,7 +310,7 @@ serve(async (req) => {
         status: 'submitted',
         active_session_id: null
       })
-      .eq('id', user.id);
+      .eq('id', participant.id);
 
     if (participantUpdateErr) {
       throw new Error(`Failed to update participant: ${participantUpdateErr.message}`);

@@ -27,23 +27,28 @@ export const AuthProvider = ({ children }) => {
           if (adminRecord) {
             setUser(session.user);
             setIsAdmin(true);
-          } else {
-            // Fetch participant profile
-            const { data: profileRecord } = await getParticipantProfile(session.user.id);
-            const clientSessionId = sessionStorage.getItem('design_event_session_id');
+            return;
+          }
+        }
 
-            if (profileRecord && profileRecord.active_session_id !== clientSessionId) {
-              console.warn('Session ID mismatch on mount. Force logging out.');
-              await supabase.auth.signOut();
-              sessionStorage.removeItem('design_event_session_id');
-              setUser(null);
-              setProfile(null);
-              setIsAdmin(false);
-            } else {
-              setUser(session.user);
-              setProfile(profileRecord);
-              setIsAdmin(false);
-            }
+        // Check participant session storage
+        const participantUserId = sessionStorage.getItem('design_event_user_id');
+        const clientSessionId = sessionStorage.getItem('design_event_session_id');
+
+        if (participantUserId && mounted) {
+          const { data: profileRecord } = await getParticipantProfile(participantUserId);
+
+          if (profileRecord && profileRecord.active_session_id !== clientSessionId) {
+            console.warn('Session ID mismatch on mount. Force logging out.');
+            sessionStorage.removeItem('design_event_session_id');
+            sessionStorage.removeItem('design_event_user_id');
+            setUser(null);
+            setProfile(null);
+            setIsAdmin(false);
+          } else if (profileRecord) {
+            setUser({ id: participantUserId, roll_number: profileRecord.roll_number });
+            setProfile(profileRecord);
+            setIsAdmin(false);
           }
         }
       } catch (err) {

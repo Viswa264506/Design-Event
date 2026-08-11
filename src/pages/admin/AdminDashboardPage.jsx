@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../services/AuthContext';
-import { getAdminStatsService, getAdminLeaderboardService, supabase } from '../../services/supabase';
-import { Users, Play, CheckCircle, Clock, Download, RefreshCw, LogOut } from 'lucide-react';
+import { getAdminStatsService, getAdminLeaderboardService, getEventSettingsService, updateEventStatusService, supabase } from '../../services/supabase';
+import { Users, Play, CheckCircle, Clock, Download, RefreshCw, LogOut, Power, Lock } from 'lucide-react';
 
 const AdminDashboardPage = () => {
   const { logout } = useAuth();
@@ -15,6 +15,12 @@ const AdminDashboardPage = () => {
     maxScore: 0
   });
   const [leaderboard, setLeaderboard] = useState([]);
+  const [eventSettings, setEventSettings] = useState({
+    status: 'SCHEDULED',
+    started_at: null,
+    closed_at: null,
+  });
+  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = async () => {
@@ -22,7 +28,9 @@ const AdminDashboardPage = () => {
     
     const statsRes = await getAdminStatsService();
     const leaderRes = await getAdminLeaderboardService();
+    const settingsRes = await getEventSettingsService();
 
+    if (settingsRes.data) setEventSettings(settingsRes.data);
     if (statsRes.data) setStats(statsRes.data);
     if (leaderRes.data) {
       // Process and sort leaderboard records
@@ -56,13 +64,36 @@ const AdminDashboardPage = () => {
     setLoading(false);
   };
 
+  const handleUpdateStatus = async (newStatus) => {
+    setUpdatingStatus(true);
+    try {
+      const { data, error } = await updateEventStatusService(newStatus);
+      setUpdatingStatus(false);
+
+      if (error || (data && !data.success)) {
+        const errMsg = error?.message || data?.error || 'Failed to update event status';
+        alert(errMsg);
+        console.error('Failed to update status:', errMsg);
+      } else {
+        await fetchDashboardData();
+      }
+    } catch (err) {
+      setUpdatingStatus(false);
+      alert('Network error: Unable to reach Supabase. Please check your internet connection.');
+      console.error('Network error updating status:', err);
+    }
+  };
+
   useEffect(() => {
     fetchDashboardData();
 
-    // Enable realtime listening to update scores dynamically
+    // Enable realtime listening to update scores & event settings dynamically
     const channel = supabase
       .channel('admin_realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'participants' }, () => {
+        fetchDashboardData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'event_settings' }, () => {
         fetchDashboardData();
       })
       .subscribe();
@@ -146,6 +177,71 @@ const AdminDashboardPage = () => {
             </button>
           </div>
         </header>
+
+        {/* Event Control Panel */}
+        <div className="p-6 bg-[#14151a] border border-gray-850 rounded-2xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-bold text-white">Poster Design — Round 1</h2>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                3rd Year Only
+              </span>
+              <span className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${
+                eventSettings?.status === 'LIVE'
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 animate-pulse'
+                  : eventSettings?.status === 'CLOSED'
+                  ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
+                  : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+              }`}>
+                Status: {eventSettings?.status || 'SCHEDULED'}
+              </span>
+            </div>
+            <p className="text-xs text-gray-400 pt-1">
+              Registered Pool: <span className="text-white font-semibold">{stats.total}</span> | 
+              Active: <span className="text-amber-400 font-semibold">{stats.active}</span> | 
+              Completed: <span className="text-emerald-400 font-semibold">{stats.completed}</span>
+            </p>
+            <div className="flex items-center gap-4 text-[11px] text-gray-500 pt-1">
+              <span>Started At: {eventSettings?.started_at ? new Date(eventSettings.started_at).toLocaleTimeString() : 'Not Started'}</span>
+              <span>Closed At: {eventSettings?.closed_at ? new Date(eventSettings.closed_at).toLocaleTimeString() : '--:--'}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            {eventSettings?.status === 'SCHEDULED' && (
+              <button
+                onClick={() => handleUpdateStatus('LIVE')}
+                disabled={updatingStatus}
+                className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-bold text-white rounded-xl shadow-lg shadow-emerald-600/20 transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              >
+                <Power size={16} />
+                {updatingStatus ? 'Starting Round 1...' : 'START ROUND 1'}
+              </button>
+            )}
+
+            {eventSettings?.status === 'LIVE' && (
+              <button
+                onClick={() => handleUpdateStatus('CLOSED')}
+                disabled={updatingStatus}
+                className="px-6 py-3 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-xs font-bold text-white rounded-xl shadow-lg shadow-rose-600/20 transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              >
+                <Lock size={16} />
+                {updatingStatus ? 'Closing Round 1...' : 'CLOSE ROUND 1'}
+              </button>
+            )}
+
+            {eventSettings?.status === 'CLOSED' && (
+              <button
+                onClick={() => handleUpdateStatus('LIVE')}
+                disabled={updatingStatus}
+                className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-bold text-white rounded-xl shadow-lg shadow-emerald-600/20 transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              >
+                <Power size={16} />
+                {updatingStatus ? 'Re-opening Round 1...' : 'RE-OPEN ROUND 1 (LIVE)'}
+              </button>
+            )}
+          </div>
+        </div>
 
 
 
