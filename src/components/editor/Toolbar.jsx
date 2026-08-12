@@ -1,8 +1,8 @@
 import React from 'react';
-import { Type, Square, Circle as CircleIcon, Trash2, Copy, Undo2, Redo2 } from 'lucide-react';
+import { MousePointer, Type, Square, Circle as CircleIcon, Trash2, Copy, Undo2, Redo2, Image as ImageIcon, Sparkles } from 'lucide-react';
 
 const Toolbar = ({
-  allowedTypes = [],
+  allowedTypes = ['text', 'rectangle', 'circle'],
   onAddElement,
   onDeleteSelected,
   onDuplicateSelected,
@@ -11,89 +11,184 @@ const Toolbar = ({
   redo,
   canUndo,
   canRedo,
+  activeTool = 'select',
+  setActiveTool = () => {}
 }) => {
   return (
-    <div className="bg-[#1e1f26] border-b border-gray-800 px-6 py-3 flex items-center justify-between gap-4 z-20">
-      {/* Element Insertion tools */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider mr-2">Insert:</span>
-        
+    <aside className="w-14 bg-white border-r border-[#E5E7EB] flex flex-col justify-between items-center py-3 z-30 select-none shadow-sm">
+      {/* Tool Icons Column */}
+      <div className="flex flex-col items-center gap-2">
+        {/* Select Tool */}
+        <button
+          onClick={() => setActiveTool('select')}
+          className={`w-10 h-10 rounded-xl flex items-center justify-center transition cursor-pointer relative group ${
+            activeTool === 'select'
+              ? 'bg-[#2563EB] text-white shadow-md shadow-[#2563EB]/20'
+              : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F5F9]'
+          }`}
+          title="Select Tool (V)"
+        >
+          <MousePointer size={17} />
+          <span className="absolute left-14 bg-[#111827] text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition z-50">
+            Select (V)
+          </span>
+        </button>
+
+        <div className="w-8 h-[1px] bg-[#E5E7EB] my-1" />
+
+        {/* Text Tool */}
         {allowedTypes.includes('text') && (
           <button
-            onClick={() => onAddElement('text')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-300 hover:text-white bg-[#282932] border border-gray-700 hover:border-gray-600 rounded-lg transition cursor-pointer"
+            onClick={() => {
+              setActiveTool('text');
+              onAddElement('text');
+            }}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition cursor-pointer relative group ${
+              activeTool === 'text'
+                ? 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/30'
+                : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F5F9]'
+            }`}
+            title="Add Text (T)"
           >
-            <Type size={14} className="text-indigo-400" />
-            Text
+            <Type size={17} />
+            <span className="absolute left-14 bg-[#111827] text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition z-50">
+              Add Text (T)
+            </span>
           </button>
         )}
 
+        {/* Rectangle Tool */}
         {allowedTypes.includes('rectangle') && (
           <button
-            onClick={() => onAddElement('rectangle')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-300 hover:text-white bg-[#282932] border border-gray-700 hover:border-gray-600 rounded-lg transition cursor-pointer"
+            onClick={() => {
+              setActiveTool('rectangle');
+              onAddElement('rectangle');
+            }}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition cursor-pointer relative group ${
+              activeTool === 'rectangle'
+                ? 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/30'
+                : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F5F9]'
+            }`}
+            title="Add Rectangle (R)"
           >
-            <Square size={14} className="text-indigo-400" />
-            Rectangle
+            <Square size={17} />
+            <span className="absolute left-14 bg-[#111827] text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition z-50">
+              Add Rectangle (R)
+            </span>
           </button>
         )}
 
+        {/* Circle Tool */}
         {allowedTypes.includes('circle') && (
           <button
-            onClick={() => onAddElement('circle')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-300 hover:text-white bg-[#282932] border border-gray-700 hover:border-gray-600 rounded-lg transition cursor-pointer"
+            onClick={() => {
+              setActiveTool('circle');
+              onAddElement('circle');
+            }}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition cursor-pointer relative group ${
+              activeTool === 'circle'
+                ? 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/30'
+                : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F5F9]'
+            }`}
+            title="Add Circle (O)"
           >
-            <CircleIcon size={14} className="text-indigo-400" />
-            Circle
+            <CircleIcon size={17} />
+            <span className="absolute left-14 bg-[#111827] text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition z-50">
+              Add Circle (O)
+            </span>
           </button>
         )}
 
-        {allowedTypes.length === 0 && (
-          <span className="text-xs text-gray-600 italic">No customizable elements allowed to be added.</span>
-        )}
+        {/* Image Tool */}
+        <button
+          onClick={() => {
+            setActiveTool('image');
+            onAddElement('image');
+          }}
+          className={`w-10 h-10 rounded-xl flex items-center justify-center transition cursor-pointer relative group ${
+            activeTool === 'image'
+              ? 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/30'
+              : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F5F9]'
+          }`}
+          title="Add Image (I)"
+        >
+          <ImageIcon size={17} />
+          <span className="absolute left-14 bg-[#111827] text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition z-50">
+            Add Image (I)
+          </span>
+        </button>
+
+        {/* Logo / Badge Tool */}
+        <button
+          onClick={() => {
+            setActiveTool('logo');
+            onAddElement('logo');
+          }}
+          className={`w-10 h-10 rounded-xl flex items-center justify-center transition cursor-pointer relative group ${
+            activeTool === 'logo'
+              ? 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/30'
+              : 'text-[#6B7280] hover:text-[#2563EB] hover:bg-[#EFF6FF]'
+          }`}
+          title="Add Badge (B)"
+        >
+          <Sparkles size={17} />
+          <span className="absolute left-14 bg-[#111827] text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition z-50">
+            Add Badge (B)
+          </span>
+        </button>
       </div>
 
-      {/* Editor history/operations */}
-      <div className="flex items-center gap-2">
+      {/* Undo / Redo / Actions Column */}
+      <div className="flex flex-col items-center gap-1.5 pt-3 border-t border-[#E5E7EB] w-full px-2">
         <button
           onClick={undo}
           disabled={!canUndo}
-          className="p-2 text-gray-400 hover:text-white disabled:text-gray-700 hover:bg-[#282932] rounded-lg transition disabled:cursor-not-allowed cursor-pointer"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-[#6B7280] hover:text-[#111827] disabled:text-[#9CA3AF]/40 hover:bg-[#F1F5F9] disabled:hover:bg-transparent transition cursor-pointer disabled:cursor-not-allowed relative group"
           title="Undo (Ctrl+Z)"
         >
           <Undo2 size={16} />
+          <span className="absolute left-14 bg-[#111827] text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition z-50">
+            Undo (Ctrl+Z)
+          </span>
         </button>
-        
+
         <button
           onClick={redo}
           disabled={!canRedo}
-          className="p-2 text-gray-400 hover:text-white disabled:text-gray-700 hover:bg-[#282932] rounded-lg transition disabled:cursor-not-allowed cursor-pointer"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-[#6B7280] hover:text-[#111827] disabled:text-[#9CA3AF]/40 hover:bg-[#F1F5F9] disabled:hover:bg-transparent transition cursor-pointer disabled:cursor-not-allowed relative group"
           title="Redo (Ctrl+Y)"
         >
           <Redo2 size={16} />
+          <span className="absolute left-14 bg-[#111827] text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition z-50">
+            Redo (Ctrl+Y)
+          </span>
         </button>
-
-        <div className="h-4 w-[1px] bg-gray-800 mx-2" />
 
         <button
           onClick={onDuplicateSelected}
           disabled={!selectedId}
-          className="p-2 text-gray-400 hover:text-white disabled:text-gray-700 hover:bg-[#282932] rounded-lg transition disabled:cursor-not-allowed cursor-pointer"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-[#6B7280] hover:text-[#111827] disabled:text-[#9CA3AF]/40 hover:bg-[#F1F5F9] disabled:hover:bg-transparent transition cursor-pointer disabled:cursor-not-allowed relative group"
           title="Duplicate Element"
         >
           <Copy size={16} />
+          <span className="absolute left-14 bg-[#111827] text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition z-50">
+            Duplicate
+          </span>
         </button>
 
         <button
           onClick={onDeleteSelected}
           disabled={!selectedId}
-          className="p-2 text-red-400 hover:text-red-300 disabled:text-gray-700 hover:bg-red-500/10 rounded-lg transition disabled:cursor-not-allowed cursor-pointer"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-[#DC2626] hover:text-white hover:bg-[#DC2626] disabled:text-[#9CA3AF]/40 disabled:hover:bg-transparent transition cursor-pointer disabled:cursor-not-allowed relative group"
           title="Delete Element (Delete)"
         >
           <Trash2 size={16} />
+          <span className="absolute left-14 bg-[#111827] text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition z-50">
+            Delete (Del)
+          </span>
         </button>
       </div>
-    </div>
+    </aside>
   );
 };
 

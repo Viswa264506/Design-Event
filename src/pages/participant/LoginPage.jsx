@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 import { isSupabaseConfigured } from '../../services/supabase';
+import { Sparkles, Shield, Clock, ArrowRight } from 'lucide-react';
 
 const LoginPage = () => {
   const [rollNumber, setRollNumber] = useState('');
@@ -33,17 +34,15 @@ const LoginPage = () => {
     if (loginError) {
       let friendlyError = loginError.message || 'Login failed. Please check your credentials or network connection.';
       if (friendlyError.includes('Invalid roll number') || friendlyError.includes('Outside allowed range')) {
-        friendlyError = 'Please enter a valid registration roll number.';
+        friendlyError = 'Please enter a valid registration roll number (274001–274065).';
       } else if (friendlyError.includes('Not registered')) {
         friendlyError = 'This roll number is not registered for this event.';
       } else if (friendlyError.includes('Wrong year')) {
         friendlyError = "This participant is not registered for this year's competition.";
       } else if (friendlyError.includes('Already active')) {
-        friendlyError = 'This roll number is already active on another device.';
+        friendlyError = 'This roll number is already active on another device session.';
       } else if (friendlyError.includes('Already completed')) {
-        friendlyError = 'You have already completed Round 1.';
-      } else if (friendlyError.includes('Database error querying schema')) {
-        friendlyError = 'Database identity error: The user account in auth.users is missing a record in auth.identities. Please run the SQL fix script in Supabase.';
+        friendlyError = 'You have already submitted and completed Round 1.';
       }
       setError(friendlyError);
     } else {
@@ -52,67 +51,93 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0e12] text-gray-100 flex flex-col justify-center items-center font-sans relative px-4">
-      {/* Glow shapes */}
-      <div className="absolute top-[-10%] left-[-10%] w-[350px] h-[350px] rounded-full bg-purple-600/10 blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[350px] h-[350px] rounded-full bg-blue-600/10 blur-[100px] pointer-events-none"></div>
+    <div className="min-h-screen bg-[#F5F7FB] text-[#111827] flex flex-col justify-center items-center font-sans px-4 select-none relative overflow-hidden">
+      
+      {/* Background Subtle Gradient Accents */}
+      <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-[#EFF6FF] to-transparent pointer-events-none" />
 
-      <div className="w-full max-w-md p-8 rounded-2xl bg-gray-900/40 border border-gray-800 backdrop-blur-md shadow-2xl relative">
+      {/* Main Centered White Auth Card */}
+      <div className="w-full max-w-md p-8 rounded-2xl bg-white border border-[#E5E7EB] shadow-xl relative z-10">
         
-
-
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-indigo-500/20 mb-4">
-            D
+        {/* Brand & Workspace Title */}
+        <div className="flex flex-col items-center mb-8 text-center space-y-3">
+          <div className="w-12 h-12 bg-[#2563EB] rounded-2xl flex items-center justify-center font-extrabold text-xl text-white shadow-lg shadow-[#2563EB]/25">
+            <Sparkles size={22} />
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">Participant Login</h2>
-          <p className="text-sm text-gray-400 mt-1">Enter your details to register or rejoin the contest</p>
+          <div>
+            <h1 className="text-xl font-black text-[#111827] tracking-tight uppercase">
+              DESIGN-EVENT
+            </h1>
+            <p className="text-xs font-bold text-[#6B7280] mt-0.5 tracking-wider uppercase">
+              Poster Design Competition
+            </p>
+          </div>
         </div>
 
         {!isSupabaseConfigured && (
-          <div className="mb-6 p-4 rounded-xl bg-amber-900/20 border border-amber-500/30 text-amber-300 text-xs leading-normal">
-            <span className="font-bold">Configuration Warning:</span> Supabase database credentials are missing. The app is running in offline mode. Please configure your environment variables in <code className="bg-amber-950 px-1 py-0.5 rounded text-[11px] font-mono">.env</code> to enable login and submissions.
+          <div className="mb-6 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs leading-relaxed font-medium">
+            <span className="font-bold">Configuration Warning:</span> Database credentials missing. Operating in demonstration mode.
           </div>
         )}
 
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-900/20 border border-red-500/30 text-red-300 text-sm">
+          <div className="mb-6 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium leading-relaxed">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="rollNumber" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label htmlFor="rollNumber" className="block text-xs font-bold text-[#374151] uppercase tracking-wider mb-2">
               Registration Roll Number
             </label>
             <input
               id="rollNumber"
               type="text"
-              placeholder="e.g., 22CS101"
+              placeholder="e.g. 274001"
               value={rollNumber}
               onChange={(e) => setRollNumber(e.target.value)}
               disabled={isSubmitting}
-              className="w-full px-4 py-3 bg-gray-950 border border-gray-800 rounded-xl focus:outline-none focus:border-indigo-500 text-white placeholder-gray-600 transition-colors"
+              autoFocus
+              className="w-full px-4 py-3 bg-[#F8FAFF] border border-[#E5E7EB] rounded-xl focus:border-[#2563EB] text-sm text-[#111827] placeholder-[#9CA3AF] font-mono font-bold transition-all shadow-sm"
             />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:from-indigo-700 disabled:to-purple-700 disabled:cursor-not-allowed text-white rounded-xl font-semibold shadow-lg shadow-indigo-600/20 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+            className="w-full py-3.5 px-4 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#2563EB]/20 transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center gap-2">
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                Logging in...
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Connecting Workspace...
               </span>
             ) : (
-              'Access Competition Area'
+              <>
+                Enter Competition <ArrowRight size={15} />
+              </>
             )}
           </button>
         </form>
+
+        {/* Footer Meta Specs */}
+        <div className="mt-8 pt-6 border-t border-[#E5E7EB] flex items-center justify-between text-xs text-[#6B7280] font-semibold">
+          <div className="flex items-center gap-1.5">
+            <Clock size={14} className="text-[#2563EB]" />
+            <span>Round 1 • 25 Minutes</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Shield size={14} className="text-[#16A34A]" />
+            <span>3rd Year Only</span>
+          </div>
+        </div>
+
       </div>
+
+      <footer className="mt-8 text-xs text-[#6B7280] font-medium">
+        Design-Event • Poster Design Competition Workspace
+      </footer>
     </div>
   );
 };

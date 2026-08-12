@@ -1,30 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 import { useHistory } from '../../hooks/useHistory';
 import { useTimer } from '../../hooks/useTimer';
-import { getTasksService, submitDesignService, supabase } from '../../services/supabase';
+import { submitDesignService } from '../../services/supabase';
 import { tasksData } from '../../data/tasks';
 
 import DesignCanvas from '../../components/editor/DesignCanvas';
 import Toolbar from '../../components/editor/Toolbar';
 import PropertiesPanel from '../../components/editor/PropertiesPanel';
 import TaskPanel from '../../components/editor/TaskPanel';
+import { Sparkles, Clock, Send, LogOut, CheckCircle2 } from 'lucide-react';
 
 const ChallengePage = () => {
   const { profile, refreshProfile, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [tasks, setTasks] = useState(tasksData);
+  const [tasks] = useState(tasksData);
   const [activeTaskIndex, setActiveTaskIndex] = useState(0);
   const activeTask = tasks[activeTaskIndex] || tasks[0];
 
-  // Selected element ID on active canvas
   const [selectedId, setSelectedId] = useState(null);
+  const [activeTool, setActiveTool] = useState('select');
 
-  // Global elements state dictionary: { [taskId]: ArrayOfElements }
   const [challengeState, setChallengeState] = useState(() => {
-    // Attempt local storage restore
     const saved = localStorage.getItem(`design_event_elements_${profile?.id}`);
     if (saved) {
       try {
@@ -34,7 +33,6 @@ const ChallengePage = () => {
       }
     }
 
-    // Default initialization from public configurations
     const initial = {};
     tasksData.forEach(task => {
       initial[task.id] = task.public_config.initialElements || [];
@@ -42,27 +40,22 @@ const ChallengePage = () => {
     return initial;
   });
 
-  // Track completion status (whether elements differ from initial configuration)
   const [taskCompletion, setTaskCompletion] = useState({});
 
-  // Sync state to local storage to protect against crashes
   useEffect(() => {
     if (profile?.id) {
       localStorage.setItem(`design_event_elements_${profile.id}`, JSON.stringify(challengeState));
     }
 
-    // Compute completion flags
     const completion = {};
     tasks.forEach(task => {
       const current = challengeState[task.id] || [];
       const initial = task.public_config.initialElements || [];
-      // Mark complete if modified or not empty
       completion[task.id] = JSON.stringify(current) !== JSON.stringify(initial) && current.length > 0;
     });
     setTaskCompletion(completion);
   }, [challengeState, profile?.id, tasks]);
 
-  // Hook elements state manager (Undo/Redo) for the current task
   const initialTaskElements = challengeState[activeTask.id] || [];
   const {
     state: currentElements,
@@ -74,7 +67,6 @@ const ChallengePage = () => {
     resetHistory,
   } = useHistory(initialTaskElements);
 
-  // Sync changes in useHistory state back into challengeState
   useEffect(() => {
     setChallengeState(prev => {
       if (JSON.stringify(prev[activeTask.id]) === JSON.stringify(currentElements)) return prev;
@@ -85,14 +77,12 @@ const ChallengePage = () => {
     });
   }, [currentElements, activeTask.id]);
 
-  // Handle swapping tasks
   useEffect(() => {
     const nextElements = challengeState[activeTask.id] || [];
     resetHistory(nextElements);
     setSelectedId(null);
   }, [activeTaskIndex, activeTask.id, resetHistory]);
 
-  // Keyboard Shortcuts Listener
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -110,13 +100,17 @@ const ChallengePage = () => {
         e.preventDefault();
         redo();
       }
+
+      if (e.key === 'v' || e.key === 'V') setActiveTool('select');
+      if (e.key === 't' || e.key === 'T') handleAddElement('text');
+      if (e.key === 'r' || e.key === 'R') handleAddElement('rectangle');
+      if (e.key === 'o' || e.key === 'O') handleAddElement('circle');
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedId, currentElements, undo, redo]);
 
-  // Element actions
   const handleAddElement = (type) => {
     const id = `${type}_${Date.now()}`;
     let newEl = {
@@ -144,13 +138,29 @@ const ChallengePage = () => {
     } else if (type === 'rectangle') {
       newEl = {
         ...newEl,
-        color: '#3B82F6',
+        backgroundColor: '#2563EB',
         borderRadius: 0,
       };
     } else if (type === 'circle') {
       newEl = {
         ...newEl,
-        color: '#10B981',
+        backgroundColor: '#16A34A',
+      };
+    } else if (type === 'image') {
+      newEl = {
+        ...newEl,
+        width: 200,
+        height: 150,
+        url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=60',
+      };
+    } else if (type === 'logo') {
+      newEl = {
+        ...newEl,
+        type: 'rectangle',
+        width: 120,
+        height: 40,
+        backgroundColor: '#2563EB',
+        borderRadius: 8,
       };
     }
 
@@ -176,7 +186,6 @@ const ChallengePage = () => {
     const original = currentElements.find(el => el.id === selectedId);
     if (!original) return;
 
-    // Shift coordinates slightly
     const id = `${original.type}_${Date.now()}`;
     const duplicated = {
       ...original,
@@ -190,26 +199,22 @@ const ChallengePage = () => {
     setSelectedId(id);
   };
 
-  // Submit states
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
-  // Submit triggers
   const handleFinalSubmit = async () => {
     setIsSubmitting(true);
     setSubmitError('');
 
     try {
       const sessionId = sessionStorage.getItem('design_event_session_id');
-      const { data, error } = await submitDesignService(challengeState, sessionId);
+      const { error } = await submitDesignService(challengeState, sessionId);
       if (error) throw error;
 
-      // Clear local storage cache on success
       localStorage.removeItem(`design_event_elements_${profile.id}`);
       sessionStorage.removeItem('design_event_session_id');
       
-      // Update profile context state
       await refreshProfile();
       navigate('/result');
     } catch (err) {
@@ -219,48 +224,98 @@ const ChallengePage = () => {
     }
   };
 
-  // Handle timer expiration
   const handleTimerExpire = () => {
     console.log('Timer expired, auto-submitting current design...');
     handleFinalSubmit();
   };
 
-  const { formatTime } = useTimer(profile?.started_at, 25, handleTimerExpire);
+  const { formatTime, timeRemaining } = useTimer(profile?.started_at, 25, handleTimerExpire);
+
+  const isDangerTime = timeRemaining <= 60;
+  const isWarningTime = timeRemaining <= 300 && !isDangerTime;
 
   const selectedElement = currentElements.find(el => el.id === selectedId);
 
   return (
-    <div className="h-screen bg-[#0d0e12] flex flex-col justify-between overflow-hidden text-gray-100 font-sans">
+    <div className="h-screen bg-[#F5F7FB] flex flex-col justify-between overflow-hidden text-[#111827] font-sans select-none">
       
-      {/* Top Header */}
-      <header className="px-6 py-4 bg-[#14151a] border-b border-gray-800 flex items-center justify-between z-20 shadow-md">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-md">
-            D
+      {/* 1. TOP WHITE APPLICATION BAR */}
+      <header className="h-14 px-5 bg-white border-b border-[#E5E7EB] flex items-center justify-between z-30 shadow-sm">
+        
+        {/* Left Brand */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-[#2563EB] rounded-xl flex items-center justify-center font-extrabold text-white shadow-md shadow-[#2563EB]/20">
+              <Sparkles size={16} />
+            </div>
+            <span className="font-black text-xs tracking-wider text-[#111827] uppercase">
+              DESIGN-EVENT
+            </span>
           </div>
-          <div>
-            <h2 className="font-bold text-sm tracking-wide text-white">DESIGN COMPETITION</h2>
-            <p className="text-[10px] text-gray-500 font-semibold">{profile?.name} ({profile?.roll_number})</p>
+
+          <div className="h-4 w-[1px] bg-[#E5E7EB]" />
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-[#111827]">Poster Design — Round 1</span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/20">
+              3rd Year
+            </span>
           </div>
         </div>
 
-        {/* Dynamic Timer display */}
+        {/* Center Task & Timer Display */}
         <div className="flex items-center gap-4">
-          <div className="px-4 py-1.5 rounded-xl border border-rose-500/20 bg-rose-500/10 text-rose-400 font-mono font-bold text-sm tracking-wide animate-pulse">
-            Time Left: {formatTime()}
+          <div className="text-xs font-mono font-bold text-[#111827] bg-[#F8FAFF] px-3.5 py-1 rounded-xl border border-[#E5E7EB]">
+            Task <strong className="text-[#2563EB]">{String(activeTaskIndex + 1).padStart(2, '0')}</strong> / 10
           </div>
-          
+
+          {/* Timer Display */}
+          <div className={`flex items-center gap-2 px-4 py-1 rounded-xl border font-mono font-extrabold text-xs tracking-wider transition ${
+            isDangerTime 
+              ? 'bg-red-50 border-red-300 text-red-600 animate-pulse'
+              : isWarningTime
+              ? 'bg-amber-50 border-amber-300 text-amber-600'
+              : 'bg-[#EFF6FF] border-[#2563EB]/30 text-[#2563EB]'
+          }`}>
+            <Clock size={14} />
+            <span>{formatTime()}</span>
+          </div>
+        </div>
+
+        {/* Right Actions & Status */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#16A34A]">
+            <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
+            <span>Saved</span>
+          </div>
+
+          <div className="h-4 w-[1px] bg-[#E5E7EB]" />
+
+          <div className="text-xs font-mono font-bold text-[#111827] bg-[#F8FAFF] px-3 py-1 rounded-xl border border-[#E5E7EB]">
+            {profile?.roll_number || '274002'}
+          </div>
+
           <button
             onClick={() => setIsSubmitModalOpen(true)}
-            className="px-5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-bold text-white rounded-lg shadow-lg shadow-emerald-600/20 transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-xs font-bold text-white rounded-xl shadow-md shadow-[#2563EB]/20 transition cursor-pointer"
           >
-            Submit Design
+            <Send size={13} /> Submit Round
+          </button>
+
+          <button
+            onClick={logout}
+            className="p-1.5 text-[#6B7280] hover:text-red-600 hover:bg-red-50 rounded-xl transition cursor-pointer"
+            title="Sign Out"
+          >
+            <LogOut size={16} />
           </button>
         </div>
       </header>
 
-      {/* Editor Panel layout */}
+      {/* 2. MAIN LIGHT EDITOR WORKSPACE */}
       <div className="flex-grow flex overflow-hidden relative">
+        
+        {/* Left Task Sidebar */}
         <TaskPanel
           tasks={tasks}
           activeTaskIndex={activeTaskIndex}
@@ -268,7 +323,8 @@ const ChallengePage = () => {
           taskCompletion={taskCompletion}
         />
         
-        <div className="flex-grow flex flex-col overflow-hidden relative">
+        {/* Center Workspace */}
+        <div className="flex-grow flex overflow-hidden relative">
           <Toolbar
             allowedTypes={activeTask.public_config.allowedTypes || []}
             onAddElement={handleAddElement}
@@ -279,7 +335,10 @@ const ChallengePage = () => {
             redo={redo}
             canUndo={canUndo}
             canRedo={canRedo}
+            activeTool={activeTool}
+            setActiveTool={setActiveTool}
           />
+
           <DesignCanvas
             elements={currentElements}
             selectedId={selectedId}
@@ -288,53 +347,61 @@ const ChallengePage = () => {
           />
         </div>
         
+        {/* Right Inspector Panel */}
         <PropertiesPanel
           selectedElement={selectedElement}
           onUpdateElement={handleUpdateElement}
+          elements={currentElements}
+          onSelectElement={setSelectedId}
         />
       </div>
 
-      {/* Confirmation Submit Modal */}
+      {/* 3. CONFIRMATION SUBMIT MODAL */}
       {isSubmitModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="w-full max-w-md p-6 rounded-2xl bg-[#1e1f26] border border-gray-800 shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-2">Submit All Designs?</h3>
-            <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-              Are you sure you want to finish the round? All 10 design workspaces will be evaluated. This action is final and cannot be undone.
-            </p>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="w-full max-w-md p-6 rounded-2xl bg-white border border-[#E5E7EB] shadow-2xl space-y-5">
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-[#111827] flex items-center gap-2">
+                <CheckCircle2 size={20} className="text-[#2563EB]" /> Submit your design?
+              </h3>
+              <p className="text-[#6B7280] text-xs leading-relaxed font-medium">
+                You will not be able to edit your submission after submitting. All 10 poster workspaces will be evaluated server-side.
+              </p>
+            </div>
 
             {submitError && (
-              <div className="mb-4 p-3 rounded-lg bg-red-950/20 border border-red-500/20 text-red-300 text-xs">
+              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
                 {submitError}
               </div>
             )}
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={() => setIsSubmitModalOpen(false)}
                 disabled={isSubmitting}
-                className="px-4 py-2 text-xs font-bold text-gray-400 hover:text-white bg-transparent hover:bg-gray-800 rounded-lg transition disabled:opacity-50 cursor-pointer"
+                className="px-4 py-2 text-xs font-bold text-[#6B7280] hover:text-[#111827] bg-transparent hover:bg-[#F1F5F9] rounded-xl transition cursor-pointer"
               >
-                Go Back
+                Cancel
               </button>
               <button
                 onClick={handleFinalSubmit}
                 disabled={isSubmitting}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 text-xs font-bold text-white rounded-lg transition shadow-lg shadow-emerald-600/20 disabled:cursor-not-allowed cursor-pointer"
+                className="px-5 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-xs font-bold text-white rounded-xl transition shadow-md shadow-[#2563EB]/20 cursor-pointer flex items-center gap-2"
               >
                 {isSubmitting ? (
-                  <span className="flex items-center gap-1">
-                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  <span className="flex items-center gap-2">
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Evaluating...
                   </span>
                 ) : (
-                  'Yes, Submit'
+                  'Submit Design'
                 )}
               </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 };

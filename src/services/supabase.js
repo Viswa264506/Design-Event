@@ -309,8 +309,55 @@ export const getEventSettingsService = async () => {
  */
 export const updateEventStatusService = async (newStatus) => {
   const { data, error } = await supabase.rpc('update_event_status', {
-    p_status: newStatus,
+    p_status: newStatus
   });
 
   return { data, error };
+};
+
+/**
+ * Admin: Reset Round 1 participant attempt data, active session locks, submissions, and task results
+ */
+export const resetRound1DataService = async () => {
+  try {
+    // 1. Try calling the database RPC reset function
+    const { data: rpcData, error: rpcError } = await supabase.rpc('reset_round1_attempts');
+    if (!rpcError && rpcData?.success) {
+      return { success: true };
+    }
+
+    // 2. Fallback to client queries
+    const { data: pData } = await supabase.from('participants').select('id').eq('year', 3);
+    const pIds = (pData || []).map(p => p.id);
+
+    if (pIds.length > 0) {
+      const { data: subData } = await supabase.from('submissions').select('id').in('participant_id', pIds);
+      const subIds = (subData || []).map(s => s.id);
+
+      if (subIds.length > 0) {
+        await supabase.from('task_results').delete().in('submission_id', subIds);
+      }
+      await supabase.from('submissions').delete().in('participant_id', pIds);
+
+      await supabase.from('participants').update({
+        status: 'pending',
+        started_at: null,
+        submitted_at: null,
+        final_score: 0,
+        active_session_id: null
+      }).in('id', pIds);
+    }
+
+    await supabase.from('event_settings').update({
+      status: 'SCHEDULED',
+      started_at: null,
+      closed_at: null,
+      updated_at: new Date().toISOString()
+    }).eq('id', 'round_1');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Reset Round 1 Data Error:', error);
+    return { error };
+  }
 };
