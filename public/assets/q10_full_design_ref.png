@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#FFFFFF"/>
+  <rect x="40" y="30" width="720" height="100" rx="12" fill="#0F172A"/>
+  <text x="60" y="90" font-family="sans-serif" font-weight="bold" font-size="24" fill="#38BDF8">DESIGN PRECISION CHAMPIONSHIP 2026</text>
+  <rect x="650" y="45" width="90" height="70" rx="8" fill="#2563EB"/>
+  <rect x="40" y="145" width="720" height="6" rx="3" fill="#F59E0B"/>
+  <rect x="40" y="170" width="400" height="260" rx="12" fill="#4F46E5"/>
+  <rect x="460" y="170" width="300" height="260" rx="12" fill="#F1F5F9"/>
+  <text x="480" y="215" font-family="sans-serif" font-weight="bold" font-size="18" fill="#0F172A">Key Highlights</text>
+  <text x="480" y="255" font-family="sans-serif" font-weight="500" font-size="14" fill="#334155">• 100% Automated Scoring</text>
+  <text x="480" y="285" font-family="sans-serif" font-weight="500" font-size="14" fill="#334155">• Live Leaderboard Updates</text>
+  <text x="480" y="315" font-family="sans-serif" font-weight="500" font-size="14" fill="#334155">• Certificate of Excellence</text>
+  <rect x="280" y="460" width="240" height="50" rx="25" fill="#10B981"/>
+  <text x="400" y="491" font-family="sans-serif" font-weight="bold" font-size="15" fill="#FFFFFF" text-anchor="middle">SUBMIT FINAL DESIGN</text>
+</svg>
