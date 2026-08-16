@@ -302,6 +302,7 @@ const ChallengePage = () => {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap');
+        .font-comic-body { font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif; }
         .font-display { font-family: 'Bangers', 'Archivo Black', cursive; letter-spacing: 0.03em; }
         .halftone-btn {
           background-color: #FFFFFF;
@@ -326,40 +327,32 @@ const ChallengePage = () => {
         }
       `}</style>
 
-      {/* 1. TOP COMIC-STYLE APPLICATION BAR (workspace area below stays clean for editing) */}
-      <header className="h-16 px-5 bg-[#12081F] border-b-4 border-[#0B0B0B] flex items-center justify-between z-30">
+      {/* 1. TOP NAVBAR — matches LoginPage / InstructionsPage comic theme */}
+      <header className="font-comic-body h-16 px-6 bg-[#F3EEE7] border-b-2 border-[#111111] flex items-center justify-between z-30 shrink-0">
 
         {/* Left Brand */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2.5">
-            <span className="font-display text-lg tracking-wide text-white drop-shadow-[1.5px_1.5px_0px_#E62429]">
-              DESIGN-EVENT<span className="text-[#00E5D4]">.</span>
+          <div>
+            <span className="font-display text-lg sm:text-xl tracking-wide text-[#E11D2E] block">
+              DESIGN-EVENT<span className="text-[#111111]">.</span>
             </span>
-          </div>
-
-          <div className="h-5 w-[2px] bg-white/15" />
-
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-extrabold text-white/70">Poster Design — Round 1</span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-white text-[#FF2D78] border-2 border-[#0B0B0B]">
-              Round 1 Workspace
-            </span>
+            <span className="text-[10px] text-[#6B7280] block font-bold -mt-0.5">Poster Design 2026 • Round 1</span>
           </div>
         </div>
 
         {/* Center Task & Timer Display */}
-        <div className="flex items-center gap-4">
-          <div className="text-xs font-mono font-extrabold text-white bg-white/10 px-3.5 py-1.5 rounded-full border-2 border-white/20">
-            Task <strong className="text-[#FF2D78]">{String(activeTaskIndex + 1).padStart(2, '0')}</strong> / 10
+        <div className="flex items-center gap-3">
+          <div className="text-xs sm:text-sm font-mono font-extrabold text-[#111827] bg-white px-3.5 py-1.5 rounded-full border-2 border-[#111111]">
+            Task <strong className="text-[#E11D2E]">{String(activeTaskIndex + 1).padStart(2, '0')}</strong> / 10
           </div>
 
           {/* Timer Display */}
-          <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border-2 font-mono font-extrabold text-xs tracking-wider transition ${
+          <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border-2 border-[#111111] font-mono font-extrabold text-xs sm:text-sm tracking-wider transition ${
             isDangerTime
-              ? 'bg-[#E62429] text-white border-[#0B0B0B] animate-pulse'
+              ? 'bg-[#E11D2E] text-white animate-pulse'
               : isWarningTime
-              ? 'bg-[#FFD400] text-[#0B0B0B] border-[#0B0B0B]'
-              : 'bg-white/10 text-white border-white/20'
+              ? 'bg-[#FFC700] text-[#111111]'
+              : 'bg-white text-[#111827]'
           }`}>
             <Clock size={14} />
             <span>{formatTime()}</span>
@@ -368,27 +361,25 @@ const ChallengePage = () => {
 
         {/* Right Actions & Status */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-[11px] font-extrabold text-[#00E5D4]">
-            <span className="w-2 h-2 rounded-full bg-[#00E5D4] animate-pulse" />
+          <div className="hidden sm:flex items-center gap-1.5 text-xs font-extrabold text-[#16A34A]">
+            <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
             <span>Saved</span>
           </div>
 
-          <div className="h-5 w-[2px] bg-white/15" />
-
-          <div className="text-xs font-mono font-extrabold text-white bg-white/10 px-3 py-1.5 rounded-full border-2 border-white/20">
+          <span className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white border-2 border-[#111111] text-xs sm:text-sm font-extrabold text-[#111827] whitespace-nowrap">
             {profile?.roll_number || 'Participant'}
-          </div>
+          </span>
 
           <button
             onClick={() => setIsSubmitModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 halftone-btn text-xs font-extrabold text-[#0B0B0B] rounded-full border-2 border-[#0B0B0B] transition-all cursor-pointer active:translate-x-[1px] active:translate-y-[1px]"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#E11D2E] hover:bg-[#c8121f] text-xs sm:text-sm font-extrabold text-white rounded-full border-2 border-[#111111] transition-all cursor-pointer active:translate-x-[1px] active:translate-y-[1px]"
           >
             <Send size={13} /> Submit Round
           </button>
 
           <button
             onClick={logout}
-            className="p-1.5 text-white/60 hover:text-[#FF2D78] hover:bg-white/10 rounded-full border-2 border-transparent hover:border-white/20 transition cursor-pointer"
+            className="p-2 bg-white text-[#6B7280] hover:text-[#E11D2E] hover:bg-[#F3EEE7] rounded-full border-2 border-[#111111] transition cursor-pointer"
             title="Sign Out"
           >
             <LogOut size={16} />
@@ -440,28 +431,27 @@ const ChallengePage = () => {
         />
       </div>
 
-      {/* 3. CONFIRMATION SUBMIT MODAL — comic style */}
+      {/* 3. CONFIRMATION SUBMIT MODAL — light comic theme, matches other pages */}
       {isSubmitModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+        <div className="font-comic-body fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="relative w-full max-w-md">
             <div className="absolute -bottom-2 -left-2 w-full h-full bg-[#00E5D4] rounded-2xl" />
-            <div className="absolute -top-2 -right-2 w-full h-full bg-[#FFD400] rounded-2xl" />
-            <div className="relative rounded-2xl bg-[#12081F] border-4 border-[#0B0B0B] overflow-hidden">
+            <div className="absolute -top-2 -right-2 w-full h-full bg-[#FFC700] rounded-2xl" />
+            <div className="relative rounded-2xl bg-white border-4 border-[#111111] overflow-hidden">
 
-              <div className="spiderverse-panel px-6 pt-6 pb-5 border-b-4 border-[#0B0B0B] relative overflow-hidden">
-                <div className="absolute inset-0 spiderverse-halftone" />
-                <h3 className="relative z-10 font-display text-2xl text-white flex items-center gap-2 drop-shadow-[2px_2px_0px_#E62429]">
-                  <CheckCircle2 size={22} /> Submit your design?
+              <div className="bg-[#F3EEE7] px-6 pt-6 pb-5 border-b-2 border-[#111111]">
+                <h3 className="font-display text-2xl text-[#111111] flex items-center gap-2">
+                  <CheckCircle2 size={22} className="text-[#E11D2E]" /> Submit your design?
                 </h3>
               </div>
 
               <div className="p-6 space-y-5">
-                <p className="text-white/70 text-xs leading-relaxed font-bold">
+                <p className="text-[#374151] text-sm leading-relaxed font-semibold">
                   You will not be able to edit your submission after submitting. All 10 poster workspaces will be evaluated server-side.
                 </p>
 
                 {submitError && (
-                  <div className="p-3.5 rounded-xl bg-[#E62429]/10 border-2 border-[#E62429] text-[#FF6B72] text-xs font-bold">
+                  <div className="p-3.5 rounded-xl bg-[#E11D2E]/10 border-2 border-[#E11D2E] text-[#c8121f] text-xs font-bold">
                     {submitError}
                   </div>
                 )}
@@ -470,18 +460,18 @@ const ChallengePage = () => {
                   <button
                     onClick={() => setIsSubmitModalOpen(false)}
                     disabled={isSubmitting}
-                    className="px-4 py-2 text-xs font-extrabold text-white/60 hover:text-white bg-transparent hover:bg-white/10 rounded-full transition cursor-pointer"
+                    className="px-4 py-2 text-sm font-extrabold text-[#6B7280] hover:text-[#111111] bg-transparent hover:bg-[#F3EEE7] rounded-full transition cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleFinalSubmit}
                     disabled={isSubmitting}
-                    className="px-5 py-2.5 halftone-btn disabled:opacity-50 text-xs font-display uppercase tracking-wide text-[#0B0B0B] rounded-full border-2 border-[#0B0B0B] transition-all cursor-pointer flex items-center gap-2 active:translate-x-[2px] active:translate-y-[2px]"
+                    className="px-5 py-2.5 bg-[#E11D2E] hover:bg-[#c8121f] disabled:opacity-50 text-sm font-extrabold uppercase tracking-wide text-white rounded-full border-2 border-[#111111] shadow-[3px_3px_0px_0px_#111111] hover:shadow-[1px_1px_0px_0px_#111111] transition-all cursor-pointer flex items-center gap-2 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                   >
                     {isSubmitting ? (
-                      <span className="flex items-center gap-2 font-comic-body normal-case tracking-normal">
-                        <span className="w-3.5 h-3.5 border-2 border-[#0B0B0B] border-t-transparent rounded-full animate-spin" />
+                      <span className="flex items-center gap-2 normal-case tracking-normal">
+                        <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         Evaluating...
                       </span>
                     ) : (

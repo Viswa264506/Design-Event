@@ -134,13 +134,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    setLoading(true);
-    await logoutParticipantService();
-    setUser(null);
-    setProfile(null);
-    setIsAdmin(false);
-    setLoading(false);
-  };
+  setLoading(true);
+  await logoutParticipantService();
+  await supabase.auth.signOut();               // admin session-um clear பண்ணும்
+  sessionStorage.removeItem('design_event_user_id');    // 🔑 இது தான் missing-ஆ இருந்துச்சு
+  sessionStorage.removeItem('design_event_session_id'); // 🔑 இதுவும் missing-ஆ இருந்துச்சு
+  setUser(null);
+  setProfile(null);
+  setIsAdmin(false);
+  setLoading(false);
+};
 
   const refreshProfile = async () => {
     if (user && !isAdmin) {

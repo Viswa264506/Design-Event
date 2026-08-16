@@ -26,7 +26,7 @@ const ProtectedRoute = ({ children, admin = false, stage = null }) => {
 
   // Participant Routes protection
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   if (isAdmin) {
     return <Navigate to="/admin/dashboard" replace />;

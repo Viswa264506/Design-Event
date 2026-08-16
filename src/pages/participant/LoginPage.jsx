@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 import { isSupabaseConfigured } from '../../services/supabase';
-import { Shield, Clock, ArrowRight, ArrowLeft, X } from 'lucide-react';
+import { ArrowRight, Clock, Shield, AlertCircle } from 'lucide-react';
 
 const LoginPage = () => {
   const [rollNumber, setRollNumber] = useState('');
@@ -11,7 +11,6 @@ const LoginPage = () => {
   const { user, isAdmin, loginParticipant, logout, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in as participant
   useEffect(() => {
     if (!loading && user && !isAdmin) {
       navigate('/instructions');
@@ -51,162 +50,136 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="font-comic-body min-h-screen bg-[#F4EE2A] text-[#0B0B0B] flex flex-col justify-center items-center px-3 sm:px-5 py-6 relative overflow-hidden">
+    <div className="font-comic-body h-screen bg-[#F3EEE7] text-[#111111] selection:bg-[#E11D2E] selection:text-white flex flex-col overflow-hidden relative">
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap');
         .font-comic-body { font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif; }
-        .font-display { font-family: 'Bangers', 'Archivo Black', cursive; letter-spacing: 0.04em; }
-        .dot-strip {
-          background-image: radial-gradient(#0B0B0B 2px, transparent 2px);
-          background-size: 10px 10px;
-        }
-        .dot-strip-color {
-          background-image: radial-gradient(#E62429 2px, transparent 2px), radial-gradient(#F4EE2A 2px, transparent 2px);
-          background-size: 10px 10px, 10px 10px;
-          background-position: 0 0, 5px 5px;
-        }
-        .spiderverse-panel {
-          background:
-            radial-gradient(circle at 78% 30%, rgba(255,45,120,0.85), transparent 38%),
-            radial-gradient(circle at 15% 20%, rgba(255,150,0,0.75), transparent 42%),
-            radial-gradient(circle at 50% 55%, rgba(255,60,40,0.65), transparent 50%),
-            radial-gradient(circle at 90% 80%, rgba(123,92,255,0.6), transparent 45%),
-            radial-gradient(circle at 10% 85%, rgba(0,229,212,0.5), transparent 42%),
-            linear-gradient(135deg, #2b0a3d 0%, #5a0e3e 30%, #7a1a2e 55%, #4a0e2e 80%, #16052b 100%);
-        }
-        .spiderverse-halftone {
-          background-image: radial-gradient(rgba(255,255,255,0.5) 1.5px, transparent 1.5px);
-          background-size: 7px 7px;
-          mix-blend-mode: overlay;
-          opacity: 0.35;
-        }
-        .halftone-btn {
-          background-color: #FFFFFF;
-          background-image: radial-gradient(rgba(11,11,11,0.18) 1px, transparent 1px);
-          background-size: 10px 10px;
-          background-position: -2px -2px;
-        }
+        .font-display { font-family: 'Bangers', 'Archivo Black', cursive; letter-spacing: 0.03em; }
       `}</style>
 
-      {/* Outer layered neon border frame */}
-      <div className="absolute inset-0 bg-[#F4EE2A] z-0" />
-      <div className="absolute inset-3 sm:inset-5 border-[6px] border-[#E62429] rounded-sm z-0" />
-      <div className="absolute inset-[18px] sm:inset-[26px] border-[6px] border-[#FF2D78] rounded-sm z-0" />
-      <div className="absolute inset-[30px] sm:inset-[42px] border-[4px] border-[#00E5D4] rounded-sm z-0" />
-
-      {/* top dot strip */}
-      <div className="absolute top-3 sm:top-5 left-3 sm:left-5 right-3 sm:right-5 h-2 dot-strip-color z-10" />
-
-      {/* Main Card */}
-      <div className="w-full max-w-md relative z-10 mt-6">
-        {/* hard offset shadow blocks behind card, comic-panel style */}
-        <div className="absolute -bottom-2 -left-2 w-full h-full bg-[#00E5D4] rounded-2xl" />
-        <div className="absolute -top-2 -right-2 w-full h-full bg-[#FFD400] rounded-2xl" />
-
-        <div className="relative bg-[#12081F] border-4 border-[#0B0B0B] rounded-2xl overflow-hidden">
-
-          {/* Spider-verse gradient header panel */}
-          <div className="spiderverse-panel border-b-4 border-[#0B0B0B] px-8 pt-7 pb-6 text-center relative overflow-hidden">
-            <div className="absolute inset-0 spiderverse-halftone" />
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="absolute top-4 right-4 z-10 w-7 h-7 rounded-full bg-[#0B0B0B] hover:bg-white text-white hover:text-[#0B0B0B] font-extrabold text-xs flex items-center justify-center transition border-2 border-white/30 cursor-pointer"
-              title="Exit to Landing Page"
-            >
-              <X size={14} />
-            </button>
-            <span className="relative z-10 font-display text-2xl text-white block drop-shadow-[2px_2px_0px_#E62429]">
-              DESIGN-EVENT<span className="text-[#00E5D4]">.</span>
+      {/* NAVBAR */}
+      <nav className="relative z-10 px-6 py-4 shrink-0">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div>
+            <span className="font-display text-xl sm:text-2xl tracking-wide text-[#E11D2E] block">
+              DESIGN-EVENT<span className="text-[#111111]">.</span>
             </span>
-            <p className="relative z-10 text-[10px] font-extrabold text-white/85 mt-1.5 tracking-widest uppercase">
-              Poster Design Competition
-            </p>
+            <span className="text-xs text-[#6B7280] block font-bold mt-0.5">Poster Design 2026 • Round 1</span>
           </div>
 
-          <div className="px-8 pt-7 pb-8">
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white border-2 border-[#111111] text-xs sm:text-sm">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+            <span className="text-[#111827] font-extrabold">ROUND 1</span>
+          </div>
+        </div>
+      </nav>
 
-            <h2 className="font-display text-2xl text-white text-center mb-6 leading-tight">
-              ENTER ROUND 1
-            </h2>
+      {/* HERO — flows directly on the page, no card wrappers */}
+      <main className="relative z-10 max-w-6xl mx-auto w-full px-6 flex-1 min-h-0 flex items-center py-2 overflow-hidden">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full">
+
+          {/* LEFT — headline + form */}
+          <div>
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider border-2 border-[#111111] bg-amber-50 text-amber-600 mb-5">
+              — The Ultimate
+            </span>
+
+            <h1
+              className="font-display whitespace-nowrap tracking-wide leading-[0.9] mb-4"
+              style={{ fontSize: 'clamp(3.25rem, 6vw, 5.75rem)' }}
+            >
+              <span className="text-[#111111]">POSTER </span>
+              <span className="text-[#E11D2E]">DESIGN.</span>
+            </h1>
 
             {!isSupabaseConfigured && (
-              <div className="mb-5 p-3.5 rounded-lg bg-[#FFD400]/10 border-2 border-[#FFD400] text-[#FFD400] text-xs leading-relaxed font-bold">
-                Configuration Warning: Database credentials missing. Operating in demonstration mode.
+              <div className="mb-4 p-3.5 rounded-lg bg-[#FFC700]/20 border-2 border-[#FFC700] text-[#8a6d1f] text-sm font-extrabold flex items-center gap-2 max-w-md">
+                <AlertCircle size={18} className="shrink-0" />
+                Configuration Warning: Database credentials missing. Demo mode active.
               </div>
             )}
 
             {error && (
-              <div className="mb-5 p-3.5 rounded-lg bg-[#E62429]/10 border-2 border-[#E62429] text-[#FF6B72] text-xs font-bold leading-relaxed">
-                {error}
+              <div className="mb-4 p-3.5 rounded-lg bg-[#E11D2E]/10 border-2 border-[#E11D2E] text-[#c8121f] text-sm font-bold flex items-center gap-2 max-w-md">
+                <AlertCircle size={18} className="shrink-0" />
+                <span>{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label htmlFor="rollNumber" className="block text-xs font-extrabold text-white/80 uppercase tracking-wider mb-2">
-                  Registration Roll Number
-                </label>
+            <div className="max-w-md">
+              <label htmlFor="rollNumber" className="block text-sm font-extrabold text-[#374151] uppercase tracking-wider mb-2">
+                Registration Roll Number <span className="text-[#E11D2E]">*</span>
+              </label>
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <input
                   id="rollNumber"
                   type="text"
-                  placeholder="e.g. 23IT001"
+                  placeholder="e.g. 274001"
                   value={rollNumber}
                   onChange={(e) => setRollNumber(e.target.value)}
                   disabled={isSubmitting}
                   autoFocus
-                  className="w-full px-4 py-3 bg-white/95 border-2 border-[#0B0B0B] rounded-lg focus:border-[#00E5D4] focus:ring-2 focus:ring-[#00E5D4]/30 text-sm text-[#0B0B0B] placeholder-[#9CA3AF] font-mono font-bold transition-all"
+                  className="w-full px-5 py-4 bg-white border-2 border-[#111111] rounded-lg text-base font-mono font-bold text-[#111827] focus:border-[#E11D2E] focus:outline-none transition-all"
                 />
-              </div>
 
-              <div className="relative group">
-                <div className="absolute -bottom-1.5 -left-1.5 w-full h-full bg-[#00E5D4] rounded-full" />
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="relative w-full py-3.5 px-4 halftone-btn disabled:opacity-50 text-[#0B0B0B] rounded-full font-display text-sm uppercase tracking-wider border-2 border-[#0B0B0B] transition-all cursor-pointer flex items-center justify-center gap-2 group-active:translate-x-[2px] group-active:translate-y-[2px]"
+                  className="flex items-center gap-3 px-8 py-4 bg-[#E11D2E] hover:bg-[#c8121f] disabled:opacity-50 text-base font-extrabold text-white rounded-full border-2 border-[#111111] shadow-[4px_4px_0px_0px_#111111] hover:shadow-[1px_1px_0px_0px_#111111] transition-all cursor-pointer tracking-wider uppercase active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                 >
                   {isSubmitting ? (
-                    <span className="flex items-center justify-center gap-2 font-comic-body font-extrabold normal-case tracking-normal">
-                      <span className="w-4 h-4 border-2 border-[#0B0B0B] border-t-transparent rounded-full animate-spin" />
-                      Connecting Workspace...
-                    </span>
+                    <>
+                      <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Connecting...
+                    </>
                   ) : (
                     <>
-                      <span>Enter Competition</span> <ArrowRight size={16} strokeWidth={3} />
+                      Enter Competition
+                      <ArrowRight size={18} strokeWidth={3} />
                     </>
                   )}
                 </button>
-              </div>
-            </form>
-
-            {/* Footer Meta Specs — badge style */}
-            <div className="mt-7 pt-5 border-t-2 border-dashed border-white/20 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1.5 bg-white/5 border border-white/15 rounded-full px-3 py-1.5 font-bold text-white/85">
-                <Clock size={13} className="text-[#00E5D4]" />
-                <span>25 Min</span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-white/5 border border-white/15 rounded-full px-3 py-1.5 font-bold text-white/85">
-                <Shield size={13} className="text-[#FF2D78]" />
-                <span>2nd & 3rd Year</span>
-              </div>
+              </form>
             </div>
-            <div className="mt-4 text-center">
-              <button
-                type="button"
-                onClick={() => navigate('/')}
-                className="inline-flex items-center gap-1.5 text-xs font-extrabold text-white/60 hover:text-[#FF2D78] transition cursor-pointer"
-              >
-                <ArrowLeft size={14} /> Exit to Landing Page
-              </button>
+
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-5 pt-4 border-t-2 border-dashed border-[#111111]/20 text-sm font-bold max-w-md">
+              <div className="flex items-center gap-2 text-[#374151]">
+                <Clock size={18} className="text-[#E11D2E]" /> 25 Min Round
+              </div>
+              <div className="flex items-center gap-2 text-[#374151]">
+                <Shield size={18} className="text-[#E11D2E]" /> 2nd &amp; 3rd Year
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* bottom dot strip */}
-      <div className="absolute bottom-3 sm:bottom-5 left-3 sm:left-5 right-3 sm:right-5 h-2 dot-strip z-10" />
+          {/* RIGHT — About the event, flowing directly, no card */}
+          <div>
+            <span className="text-sm font-extrabold text-[#E11D2E] uppercase tracking-wider">— About The Event</span>
+            <h3 className="font-display text-3xl sm:text-4xl text-[#111827] mt-3 mb-4 tracking-wide leading-tight">
+              A Design Sprint For Creative Minds.
+            </h3>
+            <p className="text-base text-[#6B7280] font-semibold leading-relaxed max-w-lg">
+              Enter your roll number to unlock the workspace, complete ten design tasks,
+              and submit your best poster before the clock runs out.
+            </p>
+
+            {/* stat chips, no card wrapper — just floating on the page */}
+            <div className="grid grid-cols-2 gap-5 mt-6 max-w-md">
+              <div className="bg-white border-2 border-[#111111] rounded-2xl p-5 shadow-[4px_4px_0px_0px_#111111]">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-[#6B7280] block mb-1.5">Tasks</span>
+                <span className="font-display text-3xl text-[#111827]">10</span>
+              </div>
+              <div className="bg-[#E11D2E] border-2 border-[#111111] rounded-2xl p-5 shadow-[4px_4px_0px_0px_#111111]">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-white/70 block mb-1.5">Round</span>
+                <span className="font-display text-3xl text-white">25+ Min</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
     </div>
   );
 };

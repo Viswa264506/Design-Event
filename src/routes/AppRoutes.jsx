@@ -4,7 +4,7 @@ import { AuthProvider } from "../services/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
 
 // Participant pages
-import LandingPage from "../pages/participant/LandingPage";
+
 import LoginPage from "../pages/participant/LoginPage";
 import InstructionsPage from "../pages/participant/InstructionsPage";
 import ChallengePage from "../pages/participant/ChallengePage";
@@ -19,8 +19,7 @@ const AppRoutes = () => {
     <AuthProvider>
       <Routes>
         {/* Participant Routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<LoginPage />} />
         
         <Route 
           path="/instructions" 
