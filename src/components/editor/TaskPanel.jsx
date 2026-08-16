@@ -1,5 +1,73 @@
 import React from 'react';
-import { ArrowLeft, ArrowRight, Target, FileText, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Target, FileText, Layers } from 'lucide-react';
+
+// Matches "Some Name (id: some_id):" — marks where a new component's spec block starts.
+const COMPONENT_REGEX = /([A-Z][\w\s/]*?)\s*\(id:\s*([\w]+)\)\s*:/g;
+
+// Matches "Key = Value" where Value can be a quoted string, a hex color, or a word/number (with optional px).
+const KV_REGEX = /([A-Za-z][A-Za-z\s]{0,20}?)\s*=\s*('[^']*'|#[0-9A-Fa-f]{3,8}|[\w.]+)/g;
+
+const cleanValue = (value) => value.replace(/^'|'$/g, '');
+
+const extractSpecs = (text = '') => {
+  const specs = [];
+  const re = new RegExp(KV_REGEX.source, 'g');
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    specs.push({ label: m[1].trim(), value: cleanValue(m[2]) });
+  }
+  return specs;
+};
+
+// Splits an instruction string into an overall description + per-component
+// spec groups (when the instruction defines multiple named/id'd parts),
+// or a single flat spec list (when it's just one simple element).
+const parseInstruction = (instruction = '') => {
+  const markers = [];
+  const re = new RegExp(COMPONENT_REGEX.source, 'g');
+  let m;
+  while ((m = re.exec(instruction)) !== null) {
+    markers.push({ name: m[1].trim(), id: m[2], start: m.index, specStart: re.lastIndex });
+  }
+
+  if (markers.length === 0) {
+    const specs = extractSpecs(instruction);
+    const description = instruction
+      .replace(new RegExp(KV_REGEX.source, 'g'), '')
+      .replace(/,?\s{2,}/g, ' ')
+      .replace(/\s+([.,])/g, '$1')
+      .trim();
+    return { description, components: [], flatSpecs: specs };
+  }
+
+  const description = instruction
+    .slice(0, markers[0].start)
+    .replace(/[\d.:\s]+$/, '')
+    .trim();
+
+  const components = markers.map((marker, i) => {
+    const end = i + 1 < markers.length ? markers[i + 1].start : instruction.length;
+    const specText = instruction.slice(marker.specStart, end);
+    return { name: marker.name, id: marker.id, specs: extractSpecs(specText) };
+  });
+
+  return { description, components, flatSpecs: [] };
+};
+
+const SpecChip = ({ label, value }) => (
+  <div className="bg-white border border-[#E5E7EB] rounded-xl px-3 py-2 flex flex-col items-start min-w-0">
+    <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wide">{label}</span>
+    <span className="flex items-center gap-1.5 text-xs sm:text-sm font-mono font-extrabold text-[#2563EB] max-w-full">
+      {value.startsWith('#') && (
+        <span
+          className="w-3 h-3 rounded-full border border-[#E5E7EB] shrink-0"
+          style={{ backgroundColor: value }}
+        />
+      )}
+      <span className="break-all leading-tight">{value}</span>
+    </span>
+  </div>
+);
 
 const TaskPanel = ({
   tasks = [],
@@ -8,6 +76,7 @@ const TaskPanel = ({
   taskCompletion = {},
 }) => {
   const activeTask = tasks[activeTaskIndex] || {};
+  const { description, components, flatSpecs } = parseInstruction(activeTask.instruction || '');
 
   const handleNext = () => {
     if (activeTaskIndex < tasks.length - 1) {
@@ -23,9 +92,9 @@ const TaskPanel = ({
 
   return (
     <aside className="w-72 bg-white border-r border-[#E5E7EB] flex flex-col justify-between z-20 text-[#111827] font-sans select-none shadow-sm">
-      
+
       <div className="flex-grow flex flex-col overflow-y-auto">
-        
+
         {/* Header */}
         <div className="p-5 border-b border-[#E5E7EB] space-y-1">
           <div className="flex items-center justify-between">
@@ -51,8 +120,8 @@ const TaskPanel = ({
                   key={task.id || idx}
                   onClick={() => setActiveTaskIndex(idx)}
                   className={`h-9 rounded-xl flex items-center justify-center text-xs font-mono font-bold transition relative cursor-pointer ${
-                    isActive 
-                      ? 'bg-[#2563EB] text-white shadow-md shadow-[#2563EB]/20 border border-[#2563EB]' 
+                    isActive
+                      ? 'bg-[#2563EB] text-white shadow-md shadow-[#2563EB]/20 border border-[#2563EB]'
                       : isCompleted
                       ? 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/30'
                       : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:text-[#111827] hover:border-[#94A3B8]'
@@ -78,14 +147,60 @@ const TaskPanel = ({
             <span className="text-[#6B7280] font-semibold">{activeTask.max_points || 10} Points</span>
           </div>
 
-          <h2 className="text-sm font-extrabold text-[#111827] leading-snug">{activeTask.title}</h2>
-          
+          <h2 className="text-base font-extrabold text-[#111827] leading-snug">{activeTask.title}</h2>
+
           {/* Instructions & Requirements Box */}
-          <div className="bg-[#F8FAFF] p-4 rounded-2xl border border-[#E5E7EB] text-xs leading-relaxed text-[#4B5563] space-y-2.5 font-medium">
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#111827] uppercase tracking-wider border-b border-[#E5E7EB] pb-1.5">
-              <FileText size={13} className="text-[#2563EB]" /> Requirements
+          <div className="bg-[#F8FAFF] p-4 rounded-2xl border border-[#E5E7EB] space-y-4 font-medium">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#111827] uppercase tracking-wider border-b border-[#E5E7EB] pb-2">
+              <FileText size={14} className="text-[#2563EB]" /> Requirements
             </div>
-            <p className="text-xs text-[#111827] font-semibold">{activeTask.instruction}</p>
+
+            {/* Overall description */}
+            {description && (
+              <p className="text-sm text-[#1F2937] font-semibold leading-relaxed">
+                {description}
+              </p>
+            )}
+
+            {/* Single-element tasks: one flat spec grid */}
+            {flatSpecs.length > 0 && (
+              <div className="grid grid-cols-2 gap-2">
+                {flatSpecs.map((spec, i) => (
+                  <SpecChip key={i} label={spec.label} value={spec.value} />
+                ))}
+              </div>
+            )}
+
+            {/* Multi-element tasks: each component gets its own labeled, separated block */}
+            {components.length > 0 && (
+              <div className="space-y-3.5">
+                {components.map((comp, i) => (
+                  <div
+                    key={comp.id || i}
+                    className="bg-white rounded-xl border border-[#E5E7EB] p-3 space-y-2.5"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <Layers size={12} className="text-[#2563EB] shrink-0" />
+                      <span className="text-xs font-extrabold text-[#111827] truncate">
+                        {comp.name}
+                      </span>
+                      {comp.id && (
+                        <span className="text-[9px] font-mono font-bold text-[#9CA3AF] bg-[#F3F4F6] px-1.5 py-0.5 rounded-md ml-auto shrink-0">
+                          {comp.id}
+                        </span>
+                      )}
+                    </div>
+                    {comp.specs.length > 0 && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {comp.specs.map((spec, j) => (
+                          <SpecChip key={j} label={spec.label} value={spec.value} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {activeTask.reference_asset && (
