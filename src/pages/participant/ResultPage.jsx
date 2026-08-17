@@ -45,31 +45,38 @@ const ResultPage = () => {
     }
   };
 
+  const cardStyles = [
+    { bg: 'bg-white', text: 'text-[#111111]', sub: 'text-[#111111]/55', rot: '-rotate-1' },
+    { bg: 'bg-[#4D7CFF]', text: 'text-white', sub: 'text-white/70', rot: 'rotate-1' },
+  ];
+
   return (
-    <div className="font-comic-body min-h-screen bg-[#F3EEE7] text-[#111111] selection:bg-[#E11D2E] selection:text-white relative">
+    <div className="min-h-screen bg-[#F5F1E8] text-[#111111] font-sans relative">
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap');
-        .font-comic-body { font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif; }
-        .font-display { font-family: 'Bangers', 'Archivo Black', cursive; letter-spacing: 0.03em; }
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+        .font-display { font-family: 'Space Grotesk', 'Archivo Black', sans-serif; }
+        .font-sans { font-family: 'Inter', system-ui, sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+        .press:active { transform: translate(4px, 4px); box-shadow: 0 0 0 #111111 !important; }
       `}</style>
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-6">
+      <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 py-8">
 
-        {/* NAVBAR — matches other pages */}
+        {/* NAVBAR */}
         <nav className="relative z-10">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <span className="font-display text-xl sm:text-2xl tracking-wide text-[#E11D2E] block">
-                DESIGN-EVENT<span className="text-[#111111]">.</span>
+              <span className="font-display text-lg sm:text-xl font-bold tracking-wide block">
+                DESIGN-EVENT<span className="text-[#FF4D6D]">.</span>
               </span>
-              <span className="text-sm text-[#6B7280] block font-bold mt-0.5">Poster Design 2026 • Round 1</span>
+              <span className="text-xs text-[#111111]/60 block font-semibold font-mono mt-0.5">Poster Design 2026 - Round 1</span>
             </div>
 
             <button
               onClick={logout}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-[#E11D2E] hover:text-white text-[#111111] rounded-full border-2 border-[#111111] text-sm font-extrabold transition cursor-pointer whitespace-nowrap"
-              title="Exit Platform"
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-[#111111] hover:text-[#FFDE59] text-[#111111] border-[3px] border-[#111111] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap"
+              title="Exit platform"
             >
               <LogOut size={14} /> <span>Exit</span>
             </button>
@@ -78,82 +85,88 @@ const ResultPage = () => {
 
         {/* SUCCESS HEADER */}
         <section className="relative z-10 pt-10 flex flex-col items-center text-center">
-          <div className="w-16 h-16 bg-[#FFC700] border-2 border-[#111111] rounded-2xl flex items-center justify-center text-[#111111] mb-4 shadow-[3px_3px_0px_0px_#111111]">
-            <CheckCircle2 size={32} />
+          <div className="w-16 h-16 bg-[#FFDE59] border-[3px] border-[#111111] shadow-[4px_4px_0px_0px_#111111] flex items-center justify-center text-[#111111] mb-4 -rotate-3">
+            <CheckCircle2 size={30} />
           </div>
-          <h1 className="font-display text-3xl sm:text-4xl text-[#111111] tracking-wide">
-            SUBMISSION RECEIVED!
+          <h1 className="font-display font-bold uppercase leading-[0.95]" style={{ fontSize: 'clamp(1.8rem, 3.6vw, 2.6rem)' }}>
+            Submission received!
           </h1>
-          <p className="text-sm font-semibold text-[#6B7280] mt-2">
-            Thank you, <span className="text-[#E11D2E] font-extrabold">{profile?.name}</span> ({profile?.roll_number}). Your design has been submitted successfully.
+          <p className="text-sm font-medium text-[#111111]/60 mt-3">
+            Thank you, <span className="text-[#FF4D6D] font-bold">{profile?.name}</span> ({profile?.roll_number}). Your design has been submitted successfully.
           </p>
         </section>
 
         {/* SCORE CARD */}
         <section className="relative z-10 pt-8">
-          <div className="max-w-2xl mx-auto bg-white border-2 border-[#111111] rounded-2xl p-6 shadow-[4px_4px_0px_0px_#111111] text-center">
-            <span className="text-sm font-extrabold text-[#6B7280] uppercase tracking-widest block mb-1">
-              Final Score
+          <div className="max-w-lg mx-auto bg-[#111111] border-[3px] border-[#111111] shadow-[6px_6px_0px_0px_#FFDE59] p-8 text-center">
+            <span className="font-mono text-xs font-bold text-[#F5F1E8]/60 uppercase tracking-[0.25em] block mb-2">
+              Final score
             </span>
-            <div className="flex items-baseline justify-center gap-1">
-              <span className="font-display text-6xl text-[#E11D2E]">
+            <div className="flex items-baseline justify-center gap-1.5">
+              <span className="font-display text-6xl sm:text-7xl font-bold text-[#FFDE59]">
                 {submission ? Number(submission.total_score).toFixed(1) : '0.0'}
               </span>
-              <span className="text-[#6B7280] font-extrabold text-base">/ 100</span>
+              <span className="text-[#F5F1E8]/60 font-bold text-base font-mono">/ 100</span>
             </div>
-            <p className="text-sm text-[#16A34A] mt-2 font-extrabold uppercase tracking-wide">Evaluation Complete</p>
+            <p className="text-xs text-[#F5F1E8] mt-3 font-bold uppercase tracking-widest font-mono">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#16A34A] mr-2 align-middle" />
+              Evaluation complete
+            </p>
           </div>
         </section>
 
         {/* SCORECARD BREAKDOWN */}
-        <section className="relative z-10 pt-8">
-          <span className="text-xs font-extrabold text-[#E11D2E] tracking-widest uppercase mb-3 block">
-            — Scorecard Breakdown
+        <section className="relative z-10 pt-10">
+          <span className="font-mono text-xs font-bold uppercase tracking-[0.25em] text-[#111111]/60 mb-4 block">
+            Scorecard breakdown
           </span>
 
           {loadingResults ? (
-            <div className="flex justify-center py-8">
-              <div className="w-5 h-5 border-2 border-[#E11D2E] border-t-transparent rounded-full animate-spin" />
+            <div className="flex justify-center py-10">
+              <div className="w-5 h-5 border-2 border-[#FF4D6D] border-t-transparent rounded-full motion-safe:animate-spin" />
             </div>
           ) : results.length === 0 ? (
-            <div className="text-center py-8 text-[#6B7280] text-sm font-semibold bg-white border-2 border-[#111111] rounded-2xl">
+            <div className="text-center py-10 text-sm font-semibold text-[#111111]/60 bg-white border-[3px] border-[#111111]">
               No individual task breakdown generated.
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 gap-4">
-              {results.map((res, index) => (
-                <div key={res.id} className="p-5 bg-white border-2 border-[#111111] rounded-xl shadow-[3px_3px_0px_0px_#111111] flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-extrabold text-[#111827] uppercase tracking-wide">
-                      Task {index + 1}: {res.task_id.replace('task_', '')}
-                    </h4>
-                    <p className="text-sm text-[#6B7280] mt-1 max-w-[220px] truncate font-semibold">
-                      {res.evaluation_details?.feedback || 'Evaluated'}
-                    </p>
+              {results.map((res, index) => {
+                const style = cardStyles[index % cardStyles.length];
+                return (
+                  <div key={res.id} className={`p-5 ${style.bg} border-[3px] border-[#111111] shadow-[5px_5px_0px_0px_#111111] flex items-center justify-between ${style.rot}`}>
+                    <div className="min-w-0">
+                      <h4 className={`text-sm font-bold uppercase tracking-wide ${style.text}`}>
+                        Task {index + 1}: {res.task_id.replace('task_', '')}
+                      </h4>
+                      <p className={`text-xs mt-1 max-w-[220px] truncate font-medium ${style.sub}`}>
+                        {res.evaluation_details?.feedback || 'Evaluated'}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0 ml-3">
+                      <span className={`font-display text-2xl font-bold ${style.text}`}>
+                        {Number(res.score).toFixed(1)}
+                      </span>
+                      <span className={`text-xs font-mono font-semibold ${style.sub}`}> / 10</span>
+                    </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <span className="font-display text-2xl text-[#E11D2E]">
-                      {Number(res.score).toFixed(1)}
-                    </span>
-                    <span className="text-sm text-[#6B7280] font-bold"> / 10</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>
 
         {/* FOOTER META / EXIT */}
-        <section className="relative z-10 pt-8 pb-10 text-center border-t-2 border-dashed border-[#111111]/20 mt-8">
-          <p className="text-xs font-extrabold text-[#6B7280] uppercase tracking-widest mb-3">
-            Round 1 Evaluation Finalized • Participant: {profile?.roll_number}
+        <section className="relative z-10 pt-10 pb-12 text-center border-t-[3px] border-dashed border-[#111111]/20 mt-8">
+          <p className="font-mono text-[11px] font-bold text-[#111111]/50 uppercase tracking-widest mb-3">
+            Round 1 evaluation finalized - Participant: {profile?.roll_number}
           </p>
           <button
             type="button"
             onClick={logout}
-            className="inline-flex items-center gap-1.5 text-sm font-extrabold text-[#6B7280] hover:text-[#E11D2E] transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-[#111111]/60 hover:text-[#FF4D6D] transition-colors cursor-pointer"
           >
-            <LogOut size={14} /> Exit Platform
+            <LogOut size={14} /> Exit platform
           </button>
         </section>
       </div>
