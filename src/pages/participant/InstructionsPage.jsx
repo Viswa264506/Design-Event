@@ -86,15 +86,6 @@ const InstructionsPage = () => {
 
         {/* AT A GLANCE */}
         <section className="pt-10">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9CA3AF] mb-2 block">
-            At a glance
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4 text-[#111827]">
-            Top 30 advance to round 2.
-          </h2>
-          <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed max-w-xl mb-6">
-            Scores are based on +/-3px accuracy against each task's target layout — precision matters more than speed.
-          </p>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {stats.map((s) => (
