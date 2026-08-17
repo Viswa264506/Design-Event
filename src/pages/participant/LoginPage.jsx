@@ -8,7 +8,7 @@ const LoginPage = () => {
   const [rollNumber, setRollNumber] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user, isAdmin, loginParticipant, logout, loading } = useAuth();
+  const { user, isAdmin, loginParticipant, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,142 +50,177 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="h-screen w-full overflow-hidden bg-[#F5F1E8] text-[#111111] font-sans lg:grid lg:grid-cols-2">
+    <div className="h-screen w-full overflow-hidden bg-[#F9FAFB] text-[#111827] font-sans flex flex-col lg:grid lg:grid-cols-2">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
-        .font-display { font-family: 'Space Grotesk', 'Archivo Black', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
         .font-sans { font-family: 'Inter', system-ui, sans-serif; }
         .font-mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
-        .press:active { transform: translate(4px, 4px); box-shadow: 0 0 0 #111111 !important; }
       `}</style>
 
-      {/* LEFT — hero + form */}
-      <div className="relative h-full bg-[#FFDE59] lg:border-r-[3px] border-[#111111] overflow-hidden px-6 sm:px-12 py-6 lg:py-8 flex flex-col justify-center">
+      {/* LEFT — form */}
+      <div className="relative flex-1 min-h-0 lg:h-full bg-white lg:border-r border-[#E5E7EB] flex flex-col px-6 sm:px-12 py-8 sm:py-10 lg:justify-center overflow-y-auto">
+        <div className="max-w-md mx-auto lg:mx-0 w-full flex-1 flex flex-col justify-between lg:justify-normal gap-0 lg:gap-10 lg:flex-none">
 
-        <span className="hidden md:block absolute -right-6 top-16 w-16 h-16 bg-[#FF4D6D] border-[3px] border-[#111111] rotate-12" />
-        <span className="hidden md:block absolute right-10 bottom-10 w-10 h-10 rounded-full bg-[#4D7CFF] border-[3px] border-[#111111]" />
-
-        <div className="relative z-10 max-w-md mx-auto lg:mx-0 w-full">
-          <div className="flex items-center justify-between mb-5">
-            <span className="font-display text-lg font-bold tracking-wide">
-              DESIGN-EVENT<span className="text-[#FF4D6D]">.</span>
-            </span>
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#111111] text-[#FFDE59] border-[3px] border-[#111111] font-mono text-[11px] font-semibold uppercase tracking-widest -rotate-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FFDE59] motion-safe:animate-pulse" />
+          {/* Top block: brand */}
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-2xl sm:text-xl font-bold tracking-tight block text-[#111827]">
+                Design-Event
+              </span>
+              <span className="text-sm sm:text-[10px] text-[#6B7280] block font-medium mt-1">
+                Poster Design 2026 · Round 1
+              </span>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-4 py-2.5 sm:py-1.5 bg-[#F0FDF4] border border-[#BBF7D0] rounded-full font-mono text-sm sm:text-[10px] font-semibold uppercase tracking-wider text-[#16A34A]">
+              <span className="w-2 h-2 sm:w-1.5 sm:h-1.5 rounded-full bg-[#16A34A] motion-safe:animate-pulse" />
               Live
             </span>
           </div>
 
-          <span className="inline-block bg-[#111111] text-[#FFDE59] font-mono text-xs font-bold uppercase tracking-widest px-3 py-1.5 -rotate-3 mb-3">
-            Round 01
-          </span>
+          {/* Middle block: heading + form */}
+          <div className="py-8 sm:py-0">
+            <h1 className="text-4xl sm:text-4xl font-bold tracking-tight mb-4 sm:mb-3 text-[#111827]">
+              Sign in to continue
+            </h1>
+            <p className="text-base sm:text-base text-[#6B7280] leading-relaxed mb-8 sm:mb-8">
+              Enter your registration roll number to unlock the workspace and begin Round 1.
+            </p>
 
-          <h1 className="font-display font-bold uppercase leading-[0.92] mb-3" style={{ fontSize: 'clamp(2.1rem, 4.4vw, 3.2rem)' }}>
-            Enter the<br />arena.
-          </h1>
+            {!isSupabaseConfigured && (
+              <div className="mb-5 flex items-start gap-3 px-4 py-3.5 sm:py-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-600" />
+                <p className="text-sm sm:text-xs font-medium text-amber-700 leading-relaxed">
+                  Configuration warning: database credentials missing. Demo mode active.
+                </p>
+              </div>
+            )}
 
-          <p className="text-sm font-semibold text-[#111111]/80 leading-relaxed mb-5 max-w-sm">
-            Enter your registration roll number to unlock the workspace and begin Round 1.
-          </p>
+            {error && (
+              <div className="mb-5 flex items-start gap-3 px-4 py-3.5 sm:py-3 bg-red-50 border border-red-200 rounded-lg">
+                <AlertCircle size={18} className="shrink-0 mt-0.5 text-red-600" />
+                <p className="text-sm sm:text-xs font-medium text-red-700 leading-relaxed">{error}</p>
+              </div>
+            )}
 
-          {!isSupabaseConfigured && (
-            <div className="mb-4 flex items-start gap-3 px-4 py-2.5 bg-white border-[3px] border-[#111111]">
-              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
-              <p className="font-mono text-xs font-semibold leading-relaxed">
-                Configuration warning: database credentials missing. Demo mode active.
-              </p>
-            </div>
-          )}
+            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-5">
+              <div>
+                <label htmlFor="rollNumber" className="block text-sm sm:text-sm font-semibold uppercase tracking-wide text-[#6B7280] mb-2.5 sm:mb-3">
+                  Roll number
+                </label>
+                <input
+                  id="rollNumber"
+                  type="text"
+                  placeholder="e.g. 274001"
+                  value={rollNumber}
+                  onChange={(e) => setRollNumber(e.target.value)}
+                  disabled={isSubmitting}
+                  autoFocus
+                  autoComplete="off"
+                  className="w-full px-5 py-5 sm:py-4 bg-white border border-[#E5E7EB] rounded-xl font-mono text-lg sm:text-lg font-medium tracking-wide text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB] transition-all"
+                />
+              </div>
 
-          {error && (
-            <div className="mb-4 flex items-start gap-3 px-4 py-2.5 bg-white border-[3px] border-[#111111] border-l-[10px] border-l-[#FF4D6D]">
-              <AlertCircle size={16} className="shrink-0 mt-0.5 text-[#FF4D6D]" />
-              <p className="text-sm font-semibold leading-relaxed">{error}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div>
-              <label htmlFor="rollNumber" className="block font-mono text-xs font-bold uppercase tracking-widest mb-2">
-                Roll number
-              </label>
-              <input
-                id="rollNumber"
-                type="text"
-                placeholder="e.g. 274001"
-                value={rollNumber}
-                onChange={(e) => setRollNumber(e.target.value)}
+              <button
+                type="submit"
                 disabled={isSubmitting}
-                autoFocus
-                autoComplete="off"
-                className="w-full px-4 py-3.5 bg-white border-[3px] border-[#111111] font-mono text-base font-semibold tracking-wider text-[#111111] placeholder:text-[#111111]/30 focus:outline-none focus-visible:ring-[3px] focus-visible:ring-[#4D7CFF] transition-all"
-              />
+                className="w-full flex items-center justify-center gap-2 px-6 py-5 sm:py-4 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-base sm:text-base font-semibold text-white transition-colors cursor-pointer"
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full motion-safe:animate-spin" />
+                    Connecting
+                  </>
+                ) : (
+                  <>
+                    Enter competition
+                    <ArrowRight size={17} strokeWidth={2.5} />
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="flex flex-wrap gap-3 mt-8 sm:mt-8">
+              <span className="inline-flex items-center gap-2 px-4 py-2.5 sm:py-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-full text-sm sm:text-sm font-medium text-[#374151]">
+                <Clock size={16} /> 25 min
+              </span>
+              <span className="inline-flex items-center gap-2 px-4 py-2.5 sm:py-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-full text-sm sm:text-sm font-medium text-[#374151]">
+                <Users size={16} /> 2nd &amp; 3rd year
+              </span>
             </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="press w-full flex items-center justify-center gap-2.5 px-6 py-4 bg-[#FF4D6D] disabled:opacity-50 disabled:cursor-not-allowed border-[3px] border-[#111111] shadow-[6px_6px_0px_0px_#111111] font-display text-sm font-bold text-white uppercase tracking-widest transition-transform focus:outline-none focus-visible:ring-[3px] focus-visible:ring-[#111111] focus-visible:ring-offset-2"
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full motion-safe:animate-spin" />
-                  Connecting
-                </>
-              ) : (
-                <>
-                  Enter competition
-                  <ArrowRight size={16} strokeWidth={2.5} />
-                </>
-              )}
-            </button>
-          </form>
+            <p className="hidden lg:block mt-10 text-xs font-medium text-[#9CA3AF] leading-relaxed max-w-sm">
+              Trouble logging in? Check with your event coordinator before the round starts.
+            </p>
+          </div>
 
-          <div className="flex flex-wrap gap-3 mt-4 font-mono text-xs font-bold uppercase tracking-wider">
-            <span className="inline-flex items-center gap-2 px-3 py-2 bg-white border-[3px] border-[#111111] rotate-1">
-              <Clock size={14} /> 25 min
+          {/* About section — mobile only */}
+          <div className="lg:hidden pt-8 border-t border-[#E5E7EB]">
+            <span className="text-sm font-semibold uppercase tracking-[0.2em] text-[#9CA3AF]">
+              About the event
             </span>
-            <span className="inline-flex items-center gap-2 px-3 py-2 bg-white border-[3px] border-[#111111] -rotate-1">
-              <Users size={14} /> 2nd &amp; 3rd year
-            </span>
+            <p className="text-base text-[#6B7280] leading-relaxed mt-4 mb-6">
+              Ten timed tasks, one workspace, one poster to submit before the clock runs out.
+              Round 1 tests speed, taste, and execution under pressure.
+            </p>
+            <div className="grid grid-cols-4 gap-3 mb-6">
+              <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 text-center">
+                <span className="block text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">Tasks</span>
+                <span className="text-xl font-bold text-[#111827]">10</span>
+              </div>
+              <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 text-center">
+                <span className="block text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">Time</span>
+                <span className="text-xl font-bold text-[#111827]">25m</span>
+              </div>
+              <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 text-center">
+                <span className="block text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">Year</span>
+                <span className="text-xl font-bold text-[#111827]">2/3</span>
+              </div>
+              <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 text-center">
+                <span className="block text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">Type</span>
+                <span className="text-xl font-bold text-[#111827]">Solo</span>
+              </div>
+            </div>
+            <p className="text-sm font-medium text-[#9CA3AF] leading-relaxed">
+              Trouble logging in? Check with your event coordinator before the round starts.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* RIGHT — about the event */}
-      <div className="relative h-full flex items-center overflow-hidden px-6 sm:px-12 py-6 lg:py-8">
+      {/* RIGHT — about the event (desktop only) */}
+      <div className="relative hidden lg:flex lg:h-full items-center bg-[#F9FAFB] px-6 sm:px-12 py-10">
         <div className="max-w-md mx-auto lg:mx-0 w-full">
-          <span className="font-mono text-xs font-bold uppercase tracking-[0.25em] text-[#111111]/60">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9CA3AF]">
             About the event
           </span>
-          <h2 className="font-display font-bold uppercase leading-[0.98] mt-3 mb-4" style={{ fontSize: 'clamp(1.6rem, 2.8vw, 2.3rem)' }}>
-            A design sprint<br />for creative minds.
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mt-3 mb-4 text-[#111827]">
+            A design sprint for creative minds
           </h2>
-          <p className="text-sm text-[#111111]/70 leading-relaxed mb-6 max-w-sm">
+          <p className="text-sm text-[#6B7280] leading-relaxed mb-8 max-w-sm">
             Ten timed tasks, one workspace, and a single poster to submit before the clock
             runs out. Round 1 tests speed, taste, and execution under pressure.
           </p>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white border-[3px] border-[#111111] shadow-[5px_5px_0px_0px_#111111] p-3 -rotate-1">
-              <span className="block font-mono text-[11px] font-bold uppercase tracking-wider text-[#111111]/50 mb-1">Tasks</span>
-              <span className="font-display text-xl font-bold">10</span>
+            <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
+              <span className="block text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF] mb-1">Tasks</span>
+              <span className="text-xl font-bold text-[#111827]">10</span>
             </div>
-            <div className="bg-[#4D7CFF] border-[3px] border-[#111111] shadow-[5px_5px_0px_0px_#111111] p-3 rotate-1">
-              <span className="block font-mono text-[11px] font-bold uppercase tracking-wider text-white/70 mb-1">Duration</span>
-              <span className="font-display text-xl font-bold text-white">25 min</span>
+            <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
+              <span className="block text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF] mb-1">Duration</span>
+              <span className="text-xl font-bold text-[#111827]">25 min</span>
             </div>
-            <div className="bg-[#FF4D6D] border-[3px] border-[#111111] shadow-[5px_5px_0px_0px_#111111] p-3 rotate-1">
-              <span className="block font-mono text-[11px] font-bold uppercase tracking-wider text-white/70 mb-1">Eligibility</span>
-              <span className="font-display text-base font-bold text-white">2nd &amp; 3rd yr</span>
+            <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
+              <span className="block text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF] mb-1">Eligibility</span>
+              <span className="text-base font-bold text-[#111827]">2nd &amp; 3rd yr</span>
             </div>
-            <div className="bg-white border-[3px] border-[#111111] shadow-[5px_5px_0px_0px_#111111] p-3 -rotate-1">
-              <span className="block font-mono text-[11px] font-bold uppercase tracking-wider text-[#111111]/50 mb-1">Format</span>
-              <span className="font-display text-base font-bold">Individual</span>
+            <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
+              <span className="block text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF] mb-1">Format</span>
+              <span className="text-base font-bold text-[#111827]">Individual</span>
             </div>
           </div>
 
-          <p className="mt-5 font-mono text-[11px] font-semibold text-[#111111]/50 leading-relaxed">
+          <p className="mt-6 text-xs font-medium text-[#9CA3AF] leading-relaxed">
             Trouble logging in? Check with your event coordinator before the round starts.
           </p>
         </div>
