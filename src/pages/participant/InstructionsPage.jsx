@@ -49,12 +49,43 @@ const InstructionsPage = () => {
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
         .font-sans { font-family: 'Inter', system-ui, sans-serif; }
         .font-mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+
+        @keyframes fadeSlideDown {
+          from { opacity: 0; transform: translateY(-12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeScaleIn {
+          from { opacity: 0; transform: scale(0.94); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes ctaPulseIn {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
+        }
+
+        .anim-navbar { animation: fadeSlideDown 0.5s ease-out both; }
+        .anim-stat { opacity: 0; animation: fadeScaleIn 0.45s ease-out forwards; }
+        .anim-heading { opacity: 0; animation: fadeSlideUp 0.5s ease-out forwards; animation-delay: 0.15s; }
+        .anim-guideline { opacity: 0; animation: fadeSlideUp 0.45s ease-out forwards; }
+        .anim-cta { opacity: 0; animation: ctaPulseIn 0.5s ease-out forwards; animation-delay: 0.75s; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .anim-navbar, .anim-stat, .anim-heading, .anim-guideline, .anim-cta {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+          }
+        }
       `}</style>
 
       <div className="max-w-5xl mx-auto px-6 sm:px-10 lg:px-12 py-8">
 
         {/* NAVBAR */}
-        <nav className="pb-8 border-b border-[#E5E7EB]">
+        <nav className="anim-navbar pb-8 border-b border-[#E5E7EB]">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <span className="text-xl font-bold tracking-tight block text-[#111827]">
@@ -88,8 +119,12 @@ const InstructionsPage = () => {
         <section className="pt-10">
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {stats.map((s) => (
-              <div key={s.label} className="bg-white border border-[#E5E7EB] rounded-xl p-4 flex items-center gap-3">
+            {stats.map((s, i) => (
+              <div
+                key={s.label}
+                className="anim-stat bg-white border border-[#E5E7EB] rounded-xl p-4 flex items-center gap-3 transition-transform hover:-translate-y-0.5"
+                style={{ animationDelay: `${0.25 + i * 0.08}s` }}
+              >
                 <div className="shrink-0 w-9 h-9 rounded-full bg-[#EFF6FF] flex items-center justify-center">
                   <s.icon size={16} className="text-[#2563EB]" />
                 </div>
@@ -104,25 +139,26 @@ const InstructionsPage = () => {
 
         {/* INSTRUCTIONS */}
         <section className="py-10">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9CA3AF] mb-2 block">
+          <span className="anim-heading text-xs font-semibold uppercase tracking-[0.2em] text-[#9CA3AF] mb-2 block">
             Competition instructions
           </span>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-6 text-[#111827]">
+          <h1 className="anim-heading text-3xl sm:text-4xl font-bold tracking-tight mb-6 text-[#111827]">
             Read before you start.
           </h1>
 
           {error && (
-            <div className="mb-5 flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="mb-5 flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-lg animate-[fadeSlideUp_0.3s_ease-out]">
               <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-600" />
               <span className="text-xs font-medium text-red-700 leading-relaxed">{error}</span>
             </div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {guidelines.map(step => (
+            {guidelines.map((step, i) => (
               <div
                 key={step.num}
-                className={`bg-white border border-[#E5E7EB] rounded-xl p-5 ${step.full ? 'md:col-span-2' : ''}`}
+                className={`anim-guideline bg-white border border-[#E5E7EB] rounded-xl p-5 transition-transform hover:-translate-y-0.5 ${step.full ? 'md:col-span-2' : ''}`}
+                style={{ animationDelay: `${0.4 + i * 0.08}s` }}
               >
                 <div className="flex items-start gap-4">
                   <div className="shrink-0 w-10 h-10 rounded-full bg-[#F9FAFB] border border-[#E5E7EB] flex items-center justify-center">
@@ -142,7 +178,7 @@ const InstructionsPage = () => {
         </section>
 
         {/* START ROUND CTA */}
-        <section className="pb-12 flex flex-col items-center text-center">
+        <section className="anim-cta pb-12 flex flex-col items-center text-center">
           <div className="flex flex-wrap items-center justify-center gap-2.5 mb-6">
             <span className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-full font-mono text-xs font-medium text-[#374151]">
               <Clock size={14} /> 25 min round
@@ -155,7 +191,7 @@ const InstructionsPage = () => {
           <button
             onClick={handleStartRound}
             disabled={isStarting}
-            className="flex items-center gap-2 px-8 py-4 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-sm font-semibold text-white transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-8 py-4 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-sm font-semibold text-white transition-all cursor-pointer hover:scale-[1.03] active:scale-[0.98]"
           >
             {isStarting ? (
               <>
