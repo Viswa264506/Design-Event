@@ -4,36 +4,38 @@ import { Sliders, Layers, AlignLeft, AlignCenter, AlignRight, Type, Move, Palett
 const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSelectElement }) => {
   if (!selectedElement) {
     return (
-      <aside className="w-72 bg-white border-l border-[#E5E7EB] p-5 flex flex-col justify-between select-none z-20 shadow-sm">
+      <aside className="w-80 bg-slate-900 border-l border-slate-800 p-5 flex flex-col justify-between select-none z-20 shadow-lg shrink-0 text-slate-100 font-sans">
         <div className="space-y-4">
-          <div className="flex items-center justify-between border-b border-[#E5E7EB] pb-3">
-            <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
-              <Sliders size={14} className="text-[#2563EB]" /> Inspector
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+              <Sliders size={14} className="text-blue-400" /> Inspector
             </h3>
-            <span className="text-[10px] font-semibold text-[#6B7280]">No Selection</span>
+            <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-800 px-2 py-0.5 rounded">No Selection</span>
           </div>
 
-          <div className="py-12 text-center text-[#6B7280] space-y-2">
-            <Move size={24} className="mx-auto text-[#94A3B8]" />
-            <p className="text-xs font-bold text-[#111827]">No Selection</p>
-            <p className="text-[11px] text-[#6B7280]">Select an element on the canvas to edit its properties.</p>
+          <div className="py-12 text-center text-slate-400 space-y-2">
+            <Move size={28} className="mx-auto text-slate-600 mb-2" />
+            <p className="text-xs font-bold text-slate-200">No Element Selected</p>
+            <p className="text-[11px] text-slate-400 max-w-[200px] mx-auto leading-relaxed">
+              Click any element on the canvas to inspect and edit its positioning, dimensions, colors, and typography.
+            </p>
           </div>
 
           {/* Layers Overview */}
           {elements.length > 0 && (
-            <div className="space-y-2 pt-4 border-t border-[#E5E7EB]">
-              <h4 className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5 mb-2">
-                <Layers size={13} className="text-[#2563EB]" /> Canvas Layers ({elements.length})
+            <div className="space-y-2 pt-4 border-t border-slate-800">
+              <h4 className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <Layers size={13} className="text-blue-400" /> Canvas Layers ({elements.length})
               </h4>
-              <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+              <div className="space-y-1 max-h-60 overflow-y-auto pr-1">
                 {elements.map((item, idx) => (
                   <button
                     key={item.id || idx}
                     onClick={() => onSelectElement && onSelectElement(item.id)}
-                    className="w-full text-left px-3 py-2 rounded-xl bg-[#F8FAFF] border border-[#E5E7EB] hover:border-[#2563EB]/40 text-xs text-[#374151] hover:text-[#111827] flex items-center justify-between transition cursor-pointer"
+                    className="w-full text-left px-3 py-2 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-blue-500/40 text-xs text-slate-300 hover:text-white flex items-center justify-between transition cursor-pointer"
                   >
                     <span className="font-mono text-[11px] truncate font-semibold">{item.id}</span>
-                    <span className="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB]">
+                    <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
                       {item.type}
                     </span>
                   </button>
@@ -43,8 +45,8 @@ const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSe
           )}
         </div>
 
-        <div className="text-[10px] text-[#9CA3AF] font-medium text-center pt-4 border-t border-[#E5E7EB]">
-          Design-Event Inspector Engine
+        <div className="text-[10px] font-mono text-slate-500 text-center pt-4 border-t border-slate-800">
+          Studio Precision Inspector v2.0
         </div>
       </aside>
     );
@@ -67,39 +69,39 @@ const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSe
   };
 
   return (
-    <aside className="w-72 bg-white border-l border-[#E5E7EB] p-5 flex flex-col justify-between overflow-y-auto z-20 select-none text-[#111827] shadow-sm">
+    <aside className="w-80 bg-slate-900 border-l border-slate-800 p-5 flex flex-col justify-between overflow-y-auto z-20 select-none text-slate-100 font-sans shadow-lg shrink-0">
       <div className="space-y-5">
         
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#E5E7EB] pb-3">
-          <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
-            <Sliders size={14} className="text-[#2563EB]" /> Inspector
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <Sliders size={14} className="text-blue-400" /> Inspector
           </h3>
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/20 uppercase">
+          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase">
             {el.type}
           </span>
         </div>
 
         {/* 1. POSITION */}
         <div className="space-y-2">
-          <h4 className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Position</h4>
+          <h4 className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">Position</h4>
           <div className="grid grid-cols-2 gap-2">
-            <div className="flex items-center bg-[#F8FAFF] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 focus-within:border-[#2563EB]">
-              <span className="text-[11px] font-bold text-[#6B7280] mr-2">X</span>
+            <div className="flex items-center bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 focus-within:border-blue-500">
+              <span className="text-xs font-mono font-bold text-slate-500 mr-2">X</span>
               <input
                 type="number"
                 value={el.x}
                 onChange={(e) => handleNumericChange('x', e.target.value, 0, 800)}
-                className="w-full bg-transparent text-xs text-[#111827] font-mono font-bold focus:outline-none"
+                className="w-full bg-transparent text-xs text-slate-100 font-mono font-bold focus:outline-none"
               />
             </div>
-            <div className="flex items-center bg-[#F8FAFF] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 focus-within:border-[#2563EB]">
-              <span className="text-[11px] font-bold text-[#6B7280] mr-2">Y</span>
+            <div className="flex items-center bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 focus-within:border-blue-500">
+              <span className="text-xs font-mono font-bold text-slate-500 mr-2">Y</span>
               <input
                 type="number"
                 value={el.y}
                 onChange={(e) => handleNumericChange('y', e.target.value, 0, 600)}
-                className="w-full bg-transparent text-xs text-[#111827] font-mono font-bold focus:outline-none"
+                className="w-full bg-transparent text-xs text-slate-100 font-mono font-bold focus:outline-none"
               />
             </div>
           </div>
@@ -107,24 +109,24 @@ const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSe
 
         {/* 2. SIZE */}
         <div className="space-y-2">
-          <h4 className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Size</h4>
+          <h4 className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">Dimensions</h4>
           <div className="grid grid-cols-2 gap-2">
-            <div className="flex items-center bg-[#F8FAFF] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 focus-within:border-[#2563EB]">
-              <span className="text-[11px] font-bold text-[#6B7280] mr-2">W</span>
+            <div className="flex items-center bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 focus-within:border-blue-500">
+              <span className="text-xs font-mono font-bold text-slate-500 mr-2">W</span>
               <input
                 type="number"
                 value={el.width}
                 onChange={(e) => handleNumericChange('width', e.target.value, 5, 800)}
-                className="w-full bg-transparent text-xs text-[#111827] font-mono font-bold focus:outline-none"
+                className="w-full bg-transparent text-xs text-slate-100 font-mono font-bold focus:outline-none"
               />
             </div>
-            <div className="flex items-center bg-[#F8FAFF] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 focus-within:border-[#2563EB]">
-              <span className="text-[11px] font-bold text-[#6B7280] mr-2">H</span>
+            <div className="flex items-center bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 focus-within:border-blue-500">
+              <span className="text-xs font-mono font-bold text-slate-500 mr-2">H</span>
               <input
                 type="number"
                 value={el.height}
                 onChange={(e) => handleNumericChange('height', e.target.value, 5, 600)}
-                className="w-full bg-transparent text-xs text-[#111827] font-mono font-bold focus:outline-none"
+                className="w-full bg-transparent text-xs text-slate-100 font-mono font-bold focus:outline-none"
               />
             </div>
           </div>
@@ -132,38 +134,38 @@ const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSe
 
         {/* 3. TYPOGRAPHY */}
         {el.type === 'text' && (
-          <div className="space-y-3 pt-2 border-t border-[#E5E7EB]">
-            <h4 className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider flex items-center gap-1">
-              <Type size={12} className="text-[#2563EB]" /> Typography
+          <div className="space-y-3 pt-3 border-t border-slate-800">
+            <h4 className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Type size={13} className="text-blue-400" /> Typography
             </h4>
             
             <div>
-              <label className="block text-[10px] text-[#6B7280] mb-1 font-semibold">Content</label>
+              <label className="block text-[10px] text-slate-400 mb-1.5 font-semibold">Text Content</label>
               <textarea
                 value={el.text}
                 onChange={(e) => handleChange('text', e.target.value)}
                 rows={2}
-                className="w-full bg-[#F8FAFF] border border-[#E5E7EB] focus:border-[#2563EB] rounded-xl p-2.5 text-xs text-[#111827] font-sans focus:outline-none resize-none font-medium"
+                className="w-full bg-slate-950/80 border border-slate-800 focus:border-blue-500 rounded-xl p-2.5 text-xs text-slate-100 font-sans focus:outline-none resize-none font-medium"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-[10px] text-[#6B7280] mb-1 font-semibold font-mono">Size (px)</label>
+                <label className="block text-[10px] text-slate-400 mb-1 font-mono">Font Size (px)</label>
                 <input
                   type="number"
                   value={el.fontSize || 14}
                   onChange={(e) => handleNumericChange('fontSize', e.target.value, 8, 120)}
-                  className="w-full bg-[#F8FAFF] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 text-xs text-[#111827] font-mono font-bold focus:outline-none"
+                  className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono font-bold focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] text-[#6B7280] mb-1 font-semibold">Weight</label>
+                <label className="block text-[10px] text-slate-400 mb-1 font-semibold">Weight</label>
                 <select
                   value={el.fontWeight || 400}
                   onChange={(e) => handleChange('fontWeight', parseInt(e.target.value, 10))}
-                  className="w-full bg-[#F8FAFF] border border-[#E5E7EB] rounded-xl px-2 py-1.5 text-xs text-[#111827] focus:outline-none cursor-pointer font-semibold"
+                  className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-slate-100 focus:outline-none cursor-pointer font-semibold"
                 >
                   <option value={300}>300 Light</option>
                   <option value={400}>400 Normal</option>
@@ -176,8 +178,8 @@ const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSe
             </div>
 
             <div>
-              <label className="block text-[10px] text-[#6B7280] mb-1 font-semibold">Alignment</label>
-              <div className="flex bg-[#F8FAFF] p-1 rounded-xl border border-[#E5E7EB] gap-1">
+              <label className="block text-[10px] text-slate-400 mb-1 font-semibold">Alignment</label>
+              <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 gap-1">
                 {[
                   { id: 'left', icon: AlignLeft },
                   { id: 'center', icon: AlignCenter },
@@ -188,10 +190,10 @@ const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSe
                     <button
                       key={item.id}
                       onClick={() => handleChange('align', item.id)}
-                      className={`flex-1 py-1 rounded-lg flex items-center justify-center transition cursor-pointer ${
+                      className={`flex-1 py-1.5 rounded-lg flex items-center justify-center transition cursor-pointer ${
                         (el.align || 'left') === item.id
-                          ? 'bg-[#2563EB] text-white shadow-sm'
-                          : 'text-[#6B7280] hover:text-[#111827]'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'text-slate-400 hover:text-slate-200'
                       }`}
                     >
                       <IconComp size={14} />
@@ -205,13 +207,13 @@ const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSe
 
         {/* 4. APPEARANCE & FILL */}
         {el.type !== 'image' && (
-          <div className="space-y-3 pt-2 border-t border-[#E5E7EB]">
-            <h4 className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider flex items-center gap-1">
-              <Palette size={12} className="text-[#2563EB]" /> Appearance
+          <div className="space-y-3 pt-3 border-t border-slate-800">
+            <h4 className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Palette size={13} className="text-blue-400" /> Style &amp; Colors
             </h4>
             
             <div>
-              <label className="block text-[10px] text-[#6B7280] mb-1 font-semibold">Fill Color</label>
+              <label className="block text-[10px] text-slate-400 mb-1 font-semibold">Fill Hex Color</label>
               <div className="flex gap-2">
                 <input
                   type="color"
@@ -224,7 +226,7 @@ const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSe
                       backgroundColor: val,
                     });
                   }}
-                  className="w-8 h-8 bg-transparent border-0 rounded cursor-pointer shrink-0"
+                  className="w-9 h-9 bg-transparent border-0 rounded cursor-pointer shrink-0"
                 />
                 <input
                   type="text"
@@ -237,19 +239,19 @@ const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSe
                       backgroundColor: val,
                     });
                   }}
-                  className="w-full bg-[#F8FAFF] border border-[#E5E7EB] rounded-xl px-3 py-1.5 text-xs text-[#111827] font-mono uppercase font-bold focus:outline-none"
+                  className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono uppercase font-bold focus:outline-none"
                 />
               </div>
             </div>
 
             {el.type === 'rectangle' && (
               <div>
-                <label className="block text-[10px] text-[#6B7280] mb-1 font-semibold">Border Radius (px)</label>
+                <label className="block text-[10px] text-slate-400 mb-1 font-mono">Border Radius (px)</label>
                 <input
                   type="number"
                   value={el.borderRadius || 0}
                   onChange={(e) => handleNumericChange('borderRadius', e.target.value, 0, 50)}
-                  className="w-full bg-[#F8FAFF] border border-[#E5E7EB] rounded-xl px-3 py-1.5 text-xs text-[#111827] font-mono font-bold focus:outline-none"
+                  className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono font-bold focus:outline-none"
                 />
               </div>
             )}
@@ -258,23 +260,23 @@ const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSe
 
         {/* Layers List */}
         {elements.length > 0 && (
-          <div className="space-y-2 pt-3 border-t border-[#E5E7EB]">
-            <h4 className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider flex items-center gap-1">
-              <Layers size={12} className="text-[#2563EB]" /> Layers
+          <div className="space-y-2 pt-3 border-t border-slate-800">
+            <h4 className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Layers size={13} className="text-blue-400" /> Canvas Layers
             </h4>
-            <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
+            <div className="space-y-1 max-h-44 overflow-y-auto pr-1">
               {elements.map((item, idx) => (
                 <button
                   key={item.id || idx}
                   onClick={() => onSelectElement && onSelectElement(item.id)}
-                  className={`w-full text-left px-2.5 py-1.5 rounded-xl border text-xs flex items-center justify-between transition cursor-pointer ${
+                  className={`w-full text-left px-3 py-2 rounded-xl border text-xs flex items-center justify-between transition cursor-pointer ${
                     item.id === el.id
-                      ? 'bg-[#EFF6FF] border-[#2563EB] text-[#2563EB] font-bold'
-                      : 'bg-[#F8FAFF] border-[#E5E7EB] text-[#6B7280] hover:text-[#111827]'
+                      ? 'bg-blue-500/15 border-blue-500/40 text-blue-400 font-bold'
+                      : 'bg-slate-950/60 border-slate-800/80 text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   <span className="font-mono text-[11px] truncate font-semibold">{item.id}</span>
-                  <span className="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-white text-[#2563EB] border border-[#E5E7EB]">
+                  <span className="text-[9px] font-mono uppercase font-extrabold px-1.5 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">
                     {item.type}
                   </span>
                 </button>
@@ -285,11 +287,12 @@ const PropertiesPanel = ({ selectedElement, onUpdateElement, elements = [], onSe
 
       </div>
 
-      <div className="text-[10px] font-mono text-[#9CA3AF] text-center pt-4 border-t border-[#E5E7EB]">
-        ID: {el.id}
+      <div className="text-[10px] font-mono text-slate-500 text-center pt-4 border-t border-slate-800">
+        ELEMENT ID: {el.id}
       </div>
     </aside>
   );
 };
 
 export default PropertiesPanel;
+

@@ -301,30 +301,29 @@ const AdminDashboardPage = () => {
   const pendingPercentage = Math.round((stats.pending / (stats.total || 1)) * 100);
 
   return (
-    <div className="font-sans min-h-screen bg-[#F5F6FA] text-[#111827] flex flex-col justify-between">
+    <div className="font-sans min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-blue-500 selection:text-white">
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
         .font-sans { font-family: 'Inter', system-ui, sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
       `}</style>
 
       {/* 1. TOP NAVIGATION BAR */}
-      <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#E5E7EB] px-6 py-3.5">
+      <nav className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-6 py-3.5 shadow-xl">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           
           {/* Brand & Navigation */}
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-sm shadow-indigo-500/20">
-                <ShieldCheck size={16} className="text-white" strokeWidth={2.4} />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/10">
+                <ShieldCheck size={18} className="text-white" strokeWidth={2.4} />
               </div>
               <div>
-                <span className="text-sm font-bold tracking-tight text-[#111827] block leading-tight">DESIGN-EVENT</span>
-                <span className="text-[11px] text-[#9CA3AF] block font-medium leading-tight">Admin Operations</span>
+                <span className="text-sm font-bold tracking-tight text-white block leading-tight">DESIGN-EVENT</span>
+                <span className="text-[10px] text-slate-400 block font-medium leading-tight">Admin Control Center</span>
               </div>
             </div>
-
-            {/* Nav Tabs */}
           </div>
 
           {/* Right Controls & Admin Profile */}
@@ -335,39 +334,39 @@ const AdminDashboardPage = () => {
                 setAddSuccess('');
                 setShowAddModal(true);
               }}
-              className="flex items-center gap-2 px-3.5 py-1.5 bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-xs font-semibold text-white rounded-full shadow-sm shadow-indigo-500/20 transition cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-xs font-semibold text-white rounded-xl shadow-md shadow-blue-600/25 transition cursor-pointer"
             >
               <UserPlus size={14} />
               <span className="hidden sm:inline">Add Participant</span>
             </button>
 
             {/* Live Indicator */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F3F4F6] text-xs">
+            <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono">
               <span className={`w-2 h-2 rounded-full ${
                 eventSettings?.status === 'LIVE' 
-                  ? 'bg-emerald-500 animate-pulse' 
+                  ? 'bg-emerald-400 animate-pulse' 
                   : eventSettings?.status === 'CLOSED'
                   ? 'bg-red-400'
                   : 'bg-amber-400'
               }`} />
-              <span className="text-[#374151] font-semibold">{eventSettings?.status || 'SCHEDULED'}</span>
+              <span className="text-slate-300 font-semibold">{eventSettings?.status || 'SCHEDULED'}</span>
             </div>
 
             <button
               onClick={fetchDashboardData}
-              className="p-2 bg-[#F3F4F6] hover:bg-[#E5E7EB] rounded-full text-[#6B7280] hover:text-[#111827] transition cursor-pointer"
+              className="p-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-400 hover:text-white transition cursor-pointer"
               title="Refresh Data"
             >
-              <RefreshCw size={15} className={loading ? "animate-spin text-indigo-500" : ""} />
+              <RefreshCw size={15} className={loading ? "animate-spin text-blue-400" : ""} />
             </button>
 
-            <div className="flex items-center gap-2 pl-2 border-l border-[#E5E7EB]">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-xs font-bold text-white">
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xs font-bold text-white font-mono shadow-inner">
                 AD
               </div>
               <button
                 onClick={logout}
-                className="p-2 text-[#9CA3AF] hover:text-red-500 hover:bg-red-50 rounded-full transition cursor-pointer"
+                className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition cursor-pointer"
                 title="Logout Admin"
               >
                 <LogOut size={16} />
@@ -383,11 +382,11 @@ const AdminDashboardPage = () => {
         {/* 2. PAGE HEADER */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#111827]">
-              Competition Overview
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
+              Competition Control Dashboard
             </h1>
-            <p className="text-sm text-[#6B7280] mt-1">
-              Real-time monitoring and control for Poster Design Round 1 (2nd & 3rd Year • {stats.total} Participants)
+            <p className="text-sm text-slate-400 mt-1">
+              Real-time participant status monitoring &amp; automated score evaluation (Round 1 • <span className="font-mono text-blue-400">{stats.total} Participants</span>)
             </p>
           </div>
 
@@ -399,7 +398,7 @@ const AdminDashboardPage = () => {
                 setAddSuccess('');
                 setShowAddModal(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-xs font-semibold text-white rounded-full shadow-sm shadow-indigo-500/20 transition cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-xs font-semibold text-white rounded-xl shadow-md shadow-blue-600/25 transition cursor-pointer"
             >
               <UserPlus size={14} />
               Add Participant
@@ -408,7 +407,7 @@ const AdminDashboardPage = () => {
             <button
               onClick={handleResetData}
               disabled={resetting}
-              className="flex items-center gap-2 px-3.5 py-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-xs font-semibold text-amber-700 rounded-full transition cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-xs font-semibold text-amber-400 rounded-xl transition cursor-pointer disabled:opacity-50"
               title="Reset scores and timers for existing participants"
             >
               <RotateCcw size={14} className={resetting ? "animate-spin" : ""} />
@@ -418,7 +417,7 @@ const AdminDashboardPage = () => {
             <button
               onClick={handleClearAllParticipants}
               disabled={clearing}
-              className="flex items-center gap-2 px-3.5 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-xs font-semibold text-red-600 rounded-full transition cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-xs font-semibold text-red-400 rounded-xl transition cursor-pointer disabled:opacity-50"
               title="Delete all participant records from database"
             >
               <Trash2 size={14} className={clearing ? "animate-spin" : ""} />
@@ -427,7 +426,7 @@ const AdminDashboardPage = () => {
 
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-[#F9FAFB] border border-[#E5E7EB] text-xs font-semibold text-[#374151] rounded-full transition cursor-pointer shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-200 rounded-xl transition cursor-pointer shadow-sm"
             >
               <Download size={14} />
               Export CSV
@@ -436,18 +435,19 @@ const AdminDashboardPage = () => {
         </div>
 
         {/* 3. EVENT CONTROL BANNER CARD */}
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+        <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl backdrop-blur-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-lg font-bold text-[#111827]">Poster Design — Round 1</h2>
+              <h2 className="text-xl font-bold text-white">Poster Design — Round 1</h2>
               
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F3F4F6] text-[#374151]">
-                2nd & 3rd Year
+              <span className="px-3 py-1 rounded-lg text-xs font-mono font-semibold bg-slate-950 text-slate-300 border border-slate-800">
+                2nd &amp; 3rd Year
               </span>
 
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${
+              <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider ${
                 eventSettings?.status === 'LIVE'
-                  ? 'bg-emerald-50 text-emerald-600'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+
                   : eventSettings?.status === 'CLOSED'
                   ? 'bg-red-50 text-red-600'
                   : 'bg-amber-50 text-amber-600'

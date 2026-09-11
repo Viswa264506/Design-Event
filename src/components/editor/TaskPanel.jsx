@@ -1,10 +1,7 @@
 import React from 'react';
-import { ArrowLeft, ArrowRight, Target, FileText, Layers } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Target, FileText, Layers, CheckCircle2 } from 'lucide-react';
 
-// Matches "Some Name (id: some_id):" — marks where a new component's spec block starts.
 const COMPONENT_REGEX = /([A-Z][\w\s/]*?)\s*\(id:\s*([\w]+)\)\s*:/g;
-
-// Matches "Key = Value" where Value can be a quoted string, a hex color, or a word/number (with optional px).
 const KV_REGEX = /([A-Za-z][A-Za-z\s]{0,20}?)\s*=\s*('[^']*'|#[0-9A-Fa-f]{3,8}|[\w.]+)/g;
 
 const cleanValue = (value) => value.replace(/^'|'$/g, '');
@@ -19,9 +16,6 @@ const extractSpecs = (text = '') => {
   return specs;
 };
 
-// Splits an instruction string into an overall description + per-component
-// spec groups (when the instruction defines multiple named/id'd parts),
-// or a single flat spec list (when it's just one simple element).
 const parseInstruction = (instruction = '') => {
   const markers = [];
   const re = new RegExp(COMPONENT_REGEX.source, 'g');
@@ -55,12 +49,12 @@ const parseInstruction = (instruction = '') => {
 };
 
 const SpecChip = ({ label, value }) => (
-  <div className="bg-white border border-[#E5E7EB] rounded-xl px-3 py-2 flex flex-col items-start min-w-0">
-    <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wide">{label}</span>
-    <span className="flex items-center gap-1.5 text-xs sm:text-sm font-mono font-extrabold text-[#2563EB] max-w-full">
+  <div className="bg-slate-900 border border-slate-800 rounded-xl p-2.5 flex flex-col items-start min-w-0">
+    <span className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">{label}</span>
+    <span className="flex items-center gap-1.5 text-xs font-mono font-bold text-blue-400 max-w-full mt-0.5">
       {value.startsWith('#') && (
         <span
-          className="w-3 h-3 rounded-full border border-[#E5E7EB] shrink-0"
+          className="w-3 h-3 rounded-full border border-slate-700 shrink-0"
           style={{ backgroundColor: value }}
         />
       )}
@@ -78,6 +72,9 @@ const TaskPanel = ({
   const activeTask = tasks[activeTaskIndex] || {};
   const { description, components, flatSpecs } = parseInstruction(activeTask.instruction || '');
 
+  const completedCount = Object.values(taskCompletion).filter(Boolean).length;
+  const progressPercent = Math.round((completedCount / (tasks.length || 1)) * 100);
+
   const handleNext = () => {
     if (activeTaskIndex < tasks.length - 1) {
       setActiveTaskIndex(activeTaskIndex + 1);
@@ -91,25 +88,32 @@ const TaskPanel = ({
   };
 
   return (
-    <aside className="w-72 bg-white border-r border-[#E5E7EB] flex flex-col justify-between z-20 text-[#111827] font-sans select-none shadow-sm">
+    <aside className="w-80 bg-slate-900 border-r border-slate-800 flex flex-col justify-between z-20 text-slate-100 font-sans select-none shrink-0 shadow-lg">
 
       <div className="flex-grow flex flex-col overflow-y-auto">
 
         {/* Header */}
-        <div className="p-5 border-b border-[#E5E7EB] space-y-1">
+        <div className="p-4 border-b border-slate-800 space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
-              <Target size={14} className="text-[#2563EB]" /> POSTER TASKS
+            <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+              <Target size={14} className="text-blue-400" /> POSTER TASKS
             </h3>
-            <span className="text-[10px] font-mono font-bold text-[#6B7280]">10 Workspaces</span>
+            <span className="text-xs font-mono font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+              {completedCount} / {tasks.length} Done
+            </span>
           </div>
-          <p className="text-xs text-[#6B7280]">
-            Complete all 10 poster tasks. All designs autosave live.
-          </p>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-300"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
 
         {/* Task Buttons 01 to 10 */}
-        <div className="p-4 border-b border-[#E5E7EB] bg-[#F8FAFF]">
+        <div className="p-3 border-b border-slate-800/80 bg-slate-950/40">
           <div className="grid grid-cols-5 gap-1.5">
             {tasks.map((task, idx) => {
               const isActive = idx === activeTaskIndex;
@@ -119,18 +123,18 @@ const TaskPanel = ({
                 <button
                   key={task.id || idx}
                   onClick={() => setActiveTaskIndex(idx)}
-                  className={`h-9 rounded-xl flex items-center justify-center text-xs font-mono font-bold transition relative cursor-pointer ${
+                  className={`h-9 rounded-xl flex items-center justify-center text-xs font-mono font-bold transition-all relative cursor-pointer ${
                     isActive
-                      ? 'bg-[#2563EB] text-white shadow-md shadow-[#2563EB]/20 border border-[#2563EB]'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 border border-blue-500'
                       : isCompleted
-                      ? 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/30'
-                      : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:text-[#111827] hover:border-[#94A3B8]'
+                      ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30 hover:bg-blue-500/25'
+                      : 'bg-slate-800/80 border border-slate-700/60 text-slate-400 hover:text-slate-200 hover:border-slate-600'
                   }`}
                   title={`Task ${idx + 1}: ${task.title}`}
                 >
                   {String(idx + 1).padStart(2, '0')}
                   {isCompleted && !isActive && (
-                    <span className="absolute top-0.5 right-0.5 text-[9px] font-bold text-[#2563EB]">✓</span>
+                    <CheckCircle2 size={10} className="absolute top-1 right-1 text-blue-400" />
                   )}
                 </button>
               );
@@ -140,29 +144,32 @@ const TaskPanel = ({
 
         {/* Active Task Requirements */}
         <div className="p-5 space-y-4">
-          <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-wider">
-            <span className="text-[#2563EB] bg-[#EFF6FF] px-2.5 py-0.5 rounded-full border border-[#2563EB]/20">
+          <div className="flex justify-between items-center text-[10px] uppercase font-mono font-bold tracking-wider">
+            <span className="text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-md border border-blue-500/20">
               TASK {String(activeTaskIndex + 1).padStart(2, '0')} / {String(tasks.length).padStart(2, '0')}
             </span>
-            <span className="text-[#6B7280] font-semibold">{activeTask.max_points || 10} Points</span>
+            <span className="text-slate-400 font-semibold">{activeTask.max_points || 10} Points</span>
           </div>
 
-          <h2 className="text-base font-extrabold text-[#111827] leading-snug">{activeTask.title}</h2>
+          <h2 className="text-base font-bold text-white leading-snug">{activeTask.title}</h2>
 
           {/* Instructions & Requirements Box */}
-          <div className="bg-[#F8FAFF] p-4 rounded-2xl border border-[#E5E7EB] space-y-4 font-medium">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#111827] uppercase tracking-wider border-b border-[#E5E7EB] pb-2">
-              <FileText size={14} className="text-[#2563EB]" /> Requirements
+          <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-4">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-800 pb-2.5">
+              <span className="flex items-center gap-1.5">
+                <FileText size={14} className="text-blue-400" /> Requirements
+              </span>
+              <span className="text-[10px] font-mono text-slate-500">±3px TOLERANCE</span>
             </div>
 
             {/* Overall description */}
             {description && (
-              <p className="text-sm text-[#1F2937] font-semibold leading-relaxed">
+              <p className="text-xs text-slate-300 font-medium leading-relaxed">
                 {description}
               </p>
             )}
 
-            {/* Single-element tasks: one flat spec grid */}
+            {/* Single-element tasks */}
             {flatSpecs.length > 0 && (
               <div className="grid grid-cols-2 gap-2">
                 {flatSpecs.map((spec, i) => (
@@ -171,27 +178,29 @@ const TaskPanel = ({
               </div>
             )}
 
-            {/* Multi-element tasks: each component gets its own labeled, separated block */}
+            {/* Multi-element tasks */}
             {components.length > 0 && (
-              <div className="space-y-3.5">
+              <div className="space-y-3">
                 {components.map((comp, i) => (
                   <div
                     key={comp.id || i}
-                    className="bg-white rounded-xl border border-[#E5E7EB] p-3 space-y-2.5"
+                    className="bg-slate-900 rounded-xl border border-slate-800 p-3 space-y-2"
                   >
-                    <div className="flex items-center gap-1.5">
-                      <Layers size={12} className="text-[#2563EB] shrink-0" />
-                      <span className="text-xs font-extrabold text-[#111827] truncate">
-                        {comp.name}
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <Layers size={13} className="text-blue-400 shrink-0" />
+                        <span className="text-xs font-bold text-slate-200 truncate">
+                          {comp.name}
+                        </span>
+                      </div>
                       {comp.id && (
-                        <span className="text-[9px] font-mono font-bold text-[#9CA3AF] bg-[#F3F4F6] px-1.5 py-0.5 rounded-md ml-auto shrink-0">
+                        <span className="text-[9px] font-mono font-bold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">
                           {comp.id}
                         </span>
                       )}
                     </div>
                     {comp.specs.length > 0 && (
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-2 pt-1">
                         {comp.specs.map((spec, j) => (
                           <SpecChip key={j} label={spec.label} value={spec.value} />
                         ))}
@@ -204,9 +213,9 @@ const TaskPanel = ({
           </div>
 
           {activeTask.reference_asset && (
-            <div className="bg-[#F8FAFF] p-3 rounded-2xl border border-[#E5E7EB] space-y-2">
-              <h4 className="text-[10px] font-bold text-[#2563EB] uppercase tracking-wider">Reference Design Target</h4>
-              <div className="rounded-xl overflow-hidden border border-[#E5E7EB] bg-white p-1">
+            <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800 space-y-2">
+              <h4 className="text-[10px] font-mono font-bold text-blue-400 uppercase tracking-wider">Reference Target</h4>
+              <div className="rounded-xl overflow-hidden border border-slate-800 bg-white p-1">
                 <img
                   src={activeTask.reference_asset}
                   alt={`${activeTask.title} Reference`}
@@ -220,21 +229,21 @@ const TaskPanel = ({
       </div>
 
       {/* Navigation Footer */}
-      <div className="p-4 border-t border-[#E5E7EB] flex items-center justify-between gap-3 bg-[#F8FAFF]">
+      <div className="p-3 border-t border-slate-800 flex items-center justify-between gap-2.5 bg-slate-950/80">
         <button
           onClick={handlePrev}
           disabled={activeTaskIndex === 0}
-          className="flex-1 flex items-center justify-center gap-1 py-2 px-3 bg-white hover:bg-[#F1F5F9] border border-[#E5E7EB] disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed text-xs font-bold text-[#111827] rounded-xl transition cursor-pointer shadow-sm"
+          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800 disabled:cursor-not-allowed text-xs font-semibold rounded-xl transition cursor-pointer"
         >
-          <ArrowLeft size={14} /> Prev
+          <ArrowLeft size={14} /> Prev Task
         </button>
 
         <button
           onClick={handleNext}
           disabled={activeTaskIndex === tasks.length - 1}
-          className="flex-1 flex items-center justify-center gap-1 py-2 px-3 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-40 disabled:hover:bg-[#2563EB] disabled:cursor-not-allowed text-xs font-bold text-white rounded-xl transition shadow-md shadow-[#2563EB]/20 cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed text-xs font-semibold text-white rounded-xl transition shadow-md shadow-blue-600/25 cursor-pointer"
         >
-          Next <ArrowRight size={14} />
+          Next Task <ArrowRight size={14} />
         </button>
       </div>
 

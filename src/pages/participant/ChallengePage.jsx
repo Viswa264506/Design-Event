@@ -298,75 +298,78 @@ const ChallengePage = () => {
   const selectedElement = currentElements.find(el => el.id === selectedId);
 
   return (
-    <div className="h-screen bg-[#F9FAFB] flex flex-col justify-between overflow-hidden text-[#111827] font-sans select-none">
+    <div className="h-screen bg-slate-950 flex flex-col justify-between overflow-hidden text-slate-100 font-sans select-none">
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
         .font-sans { font-family: 'Inter', system-ui, sans-serif; }
-        .font-mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
       `}</style>
 
-      {/* 1. TOP NAVBAR — clean, matches the editor workspace below */}
-      <header className="h-16 px-6 bg-white border-b border-[#E5E7EB] flex items-center justify-between z-30 shrink-0">
+      {/* 1. TOP NAVBAR — sleek dark studio topbar */}
+      <header className="h-16 px-6 bg-slate-900 border-b border-slate-800 flex items-center justify-between z-30 shrink-0 shadow-md">
 
         {/* Left Brand */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-md shadow-blue-500/20 ring-1 ring-white/10">
+            <span className="text-white font-mono font-bold text-xs">DE</span>
+          </div>
           <div>
-            <span className="text-lg sm:text-xl font-bold tracking-tight block text-[#111827]">
-              Design-Event
+            <span className="text-base font-bold tracking-tight block text-white">
+              Design-Event Studio
             </span>
-            <span className="text-[10px] text-[#6B7280] block font-medium -mt-0.5">Poster Design 2026 - Round 1</span>
+            <span className="text-[10px] text-slate-400 block font-medium -mt-0.5">Poster Design 2026 · Round 1</span>
           </div>
         </div>
 
         {/* Center Task & Timer Display */}
         <div className="flex items-center gap-3">
-          <div className="text-xs sm:text-sm font-semibold bg-white px-3.5 py-2 rounded-full border border-[#E5E7EB] text-[#111827]">
-            Task <strong className="text-[#2563EB]">{String(activeTaskIndex + 1).padStart(2, '0')}</strong> / 10
+          <div className="text-xs font-mono font-bold bg-slate-950 px-3.5 py-1.5 rounded-full border border-slate-800 text-slate-200">
+            Task <strong className="text-blue-400">{String(activeTaskIndex + 1).padStart(2, '0')}</strong> / 10
           </div>
 
           {/* Timer Display */}
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-full border font-mono font-semibold text-xs sm:text-sm tracking-wider transition ${
+          <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border font-mono font-bold text-xs tracking-wider transition ${
             isDangerTime
-              ? 'bg-red-50 border-red-200 text-red-600 motion-safe:animate-pulse'
+              ? 'bg-red-500/20 border-red-500/40 text-red-400 animate-pulse'
               : isWarningTime
-              ? 'bg-amber-50 border-amber-200 text-amber-600'
-              : 'bg-white border-[#E5E7EB] text-[#111827]'
+              ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
+              : 'bg-slate-950 border-slate-800 text-slate-200'
           }`}>
-            <Clock size={14} />
+            <Clock size={14} className={isDangerTime ? 'text-red-400' : 'text-blue-400'} />
             <span>{formatTime()}</span>
           </div>
         </div>
 
         {/* Right Actions & Status */}
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[#374151]">
-            <span className="w-2 h-2 rounded-full bg-[#16A34A] motion-safe:animate-pulse" />
-            <span>Saved</span>
+          <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Autosaved</span>
           </div>
 
-          <span className="hidden sm:inline-flex items-center px-3.5 py-2 bg-white border border-[#E5E7EB] rounded-full text-xs sm:text-sm font-semibold text-[#374151] whitespace-nowrap">
+          <span className="hidden sm:inline-flex items-center px-3 py-1 bg-slate-950 border border-slate-800 rounded-full font-mono text-xs font-semibold text-slate-300">
             {profile?.roll_number || 'Participant'}
           </span>
 
           <button
             onClick={() => setIsSubmitModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-xs sm:text-sm font-semibold text-white rounded-full transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-xs font-semibold text-white rounded-full transition-all shadow-md shadow-blue-600/25 cursor-pointer"
           >
-            <Send size={13} /> Submit round
+            <Send size={13} /> Submit Round
           </button>
 
           <button
             onClick={logout}
-            className="p-2 bg-white text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6] rounded-full border border-[#E5E7EB] transition-colors cursor-pointer"
+            className="p-1.5 bg-slate-950 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full border border-slate-800 transition-colors cursor-pointer"
             title="Sign out"
           >
-            <LogOut size={16} />
+            <LogOut size={15} />
           </button>
         </div>
       </header>
 
-      {/* 2. MAIN EDITOR WORKSPACE — unchanged for editing precision/usability */}
+      {/* 2. MAIN EDITOR WORKSPACE */}
       <div className="flex-grow flex overflow-hidden relative">
 
         {/* Left Task Sidebar */}
@@ -410,26 +413,26 @@ const ChallengePage = () => {
         />
       </div>
 
-      {/* 3. CONFIRMATION SUBMIT MODAL — clean, matches the editor workspace */}
+      {/* 3. CONFIRMATION SUBMIT MODAL */}
       {isSubmitModalOpen && (
-        <div className="font-sans fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="w-full max-w-md bg-white rounded-2xl border border-[#E5E7EB] shadow-xl overflow-hidden">
+        <div className="font-sans fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
+          <div className="w-full max-w-md bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
 
-            <div className="px-6 pt-6 pb-5 border-b border-[#E5E7EB]">
-              <h3 className="text-lg font-bold text-[#111827] flex items-center gap-2">
-                <CheckCircle2 size={20} className="text-[#2563EB]" /> Submit your design?
+            <div className="px-6 pt-6 pb-5 border-b border-slate-800">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <CheckCircle2 size={20} className="text-blue-400" /> Submit your design?
               </h3>
             </div>
 
             <div className="p-6 space-y-5">
-              <p className="text-sm leading-relaxed text-[#6B7280]">
-                You will not be able to edit your submission after submitting. All 10 poster workspaces will be evaluated server-side.
+              <p className="text-sm leading-relaxed text-slate-300">
+                You will not be able to edit your submission after submitting. All 10 poster workspaces will be evaluated server-side in real-time.
               </p>
 
               {submitError && (
-                <div className="flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-lg">
-                  <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-600" />
-                  <span className="text-xs font-medium text-red-700 leading-relaxed">{submitError}</span>
+                <div className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                  <AlertCircle size={18} className="shrink-0 mt-0.5 text-red-400" />
+                  <span className="text-xs font-medium text-red-300 leading-relaxed">{submitError}</span>
                 </div>
               )}
 
@@ -437,22 +440,22 @@ const ChallengePage = () => {
                 <button
                   onClick={() => setIsSubmitModalOpen(false)}
                   disabled={isSubmitting}
-                  className="px-4 py-2.5 text-sm font-semibold text-[#6B7280] hover:text-[#111827] bg-transparent hover:bg-[#F3F4F6] rounded-full transition-colors cursor-pointer"
+                  className="px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleFinalSubmit}
                   disabled={isSubmitting}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-sm font-semibold text-white rounded-full transition-colors cursor-pointer"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 text-xs font-semibold text-white rounded-xl transition-all shadow-lg shadow-blue-600/30 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
-                      <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full motion-safe:animate-spin" />
-                      Evaluating
+                      <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                      Evaluating Precision...
                     </span>
                   ) : (
-                    'Submit design'
+                    'Confirm Final Submission'
                   )}
                 </button>
               </div>

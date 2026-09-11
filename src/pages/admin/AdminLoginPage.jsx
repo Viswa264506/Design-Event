@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 import { isSupabaseConfigured } from '../../services/supabase';
-import { Eye, EyeOff, ArrowLeft, ShieldCheck, AlertTriangle, Lock, Mail } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, ShieldCheck, AlertTriangle, Lock, Mail, Sparkles } from 'lucide-react';
 
 const AdminLoginPage = () => {
   const [email, setEmail] = useState('');
@@ -45,68 +45,68 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F6FA] text-[#111827] flex flex-col justify-center items-center relative px-4 overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#0B0F17] text-slate-100 flex flex-col justify-center items-center relative px-4 overflow-hidden font-sans">
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         .font-sans { font-family: 'Inter', system-ui, sans-serif; }
       `}</style>
 
-      {/* Ambient background glow */}
-      <div className="absolute -top-40 -left-40 w-[32rem] h-[32rem] bg-indigo-200/40 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-[32rem] h-[32rem] bg-blue-200/40 rounded-full blur-[120px] pointer-events-none" />
-      <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{ backgroundImage: 'linear-gradient(#111827 1px, transparent 1px), linear-gradient(90deg, #111827 1px, transparent 1px)', backgroundSize: '48px 48px' }}
-      />
+      {/* Ambient background glow & grid lines */}
+      <div className="absolute -top-40 -left-40 w-[36rem] h-[36rem] bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 w-[36rem] h-[36rem] bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute inset-0 bg-grid-dark opacity-30 pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md">
 
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-[#6B7280] hover:text-[#111827] transition cursor-pointer"
+          className="mb-6 inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition cursor-pointer"
         >
-          <ArrowLeft size={15} /> Back to participant login
+          <ArrowLeft size={15} /> Back to Participant Portal
         </button>
 
-        <div className="rounded-2xl bg-white border border-[#E5E7EB] shadow-xl shadow-black/[0.04] overflow-hidden">
+        <div className="rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl shadow-2xl overflow-hidden">
 
           {/* Header */}
-          <div className="px-8 pt-8 pb-6 border-b border-[#F1F1F1]">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/20">
-              <ShieldCheck size={22} className="text-white" strokeWidth={2.2} />
+          <div className="px-8 pt-8 pb-6 border-b border-slate-800">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-blue-600 flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/25 ring-1 ring-white/20">
+              <ShieldCheck size={24} className="text-white" strokeWidth={2.2} />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-[#111827]">Admin Console</h1>
-            <p className="text-sm text-[#6B7280] mt-1 leading-relaxed">
-              Sign in with your administrator credentials to manage Round 1.
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded-md text-[10px] font-mono font-bold text-indigo-400 mb-2">
+              <Sparkles size={11} /> RESTRICTED CONSOLE
+            </div>
+            <h1 className="text-2xl font-extrabold tracking-tight text-white">Administrator Sign In</h1>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              Enter your administrative credentials to manage competition status and live leaderboards.
             </p>
           </div>
 
           <div className="px-8 pt-6 pb-8">
 
             {!isSupabaseConfigured && (
-              <div className="mb-5 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs leading-relaxed flex gap-2.5">
-                <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+              <div className="mb-5 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs leading-relaxed flex gap-3">
+                <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-400" />
                 <span>
-                  <span className="font-semibold">Configuration warning —</span> Supabase credentials are missing. Running in offline mode. Configure <code className="bg-amber-100 px-1 py-0.5 rounded text-[11px] font-mono">.env</code> to enable admin validation.
+                  <strong className="font-semibold text-amber-200">Demo Mode Active:</strong> Supabase credentials not detected. Enter any email/password to enter admin preview.
                 </span>
               </div>
             )}
 
             {error && (
-              <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-medium">
+              <div className="mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs font-semibold">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-2">
+                <label htmlFor="email" className="block text-xs font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
+                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
                   <input
                     id="email"
                     type="email"
@@ -114,17 +114,17 @@ const AdminLoginPage = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={isSubmitting}
-                    className="w-full pl-10 pr-4 py-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-indigo-400 focus:bg-white text-[#111827] placeholder-[#9CA3AF] text-sm font-medium transition-colors"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-white placeholder-slate-600 text-xs font-medium transition-colors"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-2">
+                <label htmlFor="password" className="block text-xs font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
+                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -132,12 +132,12 @@ const AdminLoginPage = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isSubmitting}
-                    className="w-full pl-10 pr-11 py-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-indigo-400 focus:bg-white text-[#111827] placeholder-[#9CA3AF] text-sm font-medium transition-colors"
+                    className="w-full pl-10 pr-11 py-3 bg-slate-950/80 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-white placeholder-slate-600 text-xs font-medium transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#374151] transition-colors cursor-pointer"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200 transition-colors cursor-pointer"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -148,23 +148,23 @@ const AdminLoginPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3 mt-2 bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 disabled:opacity-50 text-white rounded-xl font-semibold text-sm shadow-lg shadow-indigo-500/25 transition-all cursor-pointer active:scale-[0.98]"
+                className="w-full py-3.5 mt-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 disabled:opacity-50 text-white rounded-xl font-semibold text-xs shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">
                     <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    Verifying credentials...
+                    Verifying Credentials...
                   </span>
                 ) : (
-                  'Sign In'
+                  'Sign In to Console'
                 )}
               </button>
             </form>
           </div>
         </div>
 
-        <p className="text-center text-xs text-[#9CA3AF] mt-6 font-medium">
-          Restricted access — authorized event administrators only.
+        <p className="text-center text-xs text-slate-500 mt-6 font-mono">
+          Design-Event Administrative Control Center
         </p>
       </div>
     </div>

@@ -165,7 +165,7 @@ const DesignCanvas = ({ elements, selectedId, setSelectedId, updateElements }) =
   }, [dragState, elements, scale, updateElements]);
 
   return (
-    <div className="w-full h-full relative flex flex-col justify-between items-center bg-[#F1F5F9] overflow-hidden select-none p-6">
+    <div className="w-full h-full relative flex flex-col justify-between items-center bg-slate-950 bg-grid-dark overflow-hidden select-none p-6">
       
       {/* Workspace Canvas Container */}
       <div className="w-full h-full flex items-center justify-center relative">
@@ -178,11 +178,11 @@ const DesignCanvas = ({ elements, selectedId, setSelectedId, updateElements }) =
             ref={canvasRef}
             onClick={handleCanvasClick}
             style={{ width: 800, height: 600 }}
-            className="absolute inset-0 bg-white border border-[#CBD5E1] overflow-hidden canvas-surface shadow-2xl cursor-default"
+            className="absolute inset-0 bg-white border border-slate-700/80 overflow-hidden canvas-surface shadow-2xl cursor-default"
           >
             {/* Subtle Light Gray Grid */}
             {showGrid && (
-              <div className="absolute inset-0 pointer-events-none opacity-40" style={{
+              <div className="absolute inset-0 pointer-events-none opacity-30" style={{
                 backgroundImage: 'radial-gradient(circle, #CBD5E1 1.5px, transparent 1.5px)',
                 backgroundSize: '20px 20px'
               }} />
@@ -205,7 +205,7 @@ const DesignCanvas = ({ elements, selectedId, setSelectedId, updateElements }) =
                   key={el.id}
                   style={elementStyle}
                   onMouseDown={(e) => handleElementMouseDown(e, el)}
-                  className={`relative group ${isSelected ? 'ring-2 ring-[#2563EB] z-30' : 'hover:ring-1 hover:ring-[#2563EB]/40 z-10'}`}
+                  className={`relative group ${isSelected ? 'ring-2 ring-blue-600 z-30' : 'hover:ring-1 hover:ring-blue-400/50 z-10'}`}
                 >
                   {/* Element Content */}
                   {el.type === 'text' && (
@@ -269,30 +269,30 @@ const DesignCanvas = ({ elements, selectedId, setSelectedId, updateElements }) =
                     <>
                       <div
                         onMouseDown={(e) => handleHandleMouseDown(e, 'tl', el)}
-                        className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-[#2563EB] rounded-full z-40 cursor-nwse-resize shadow"
+                        className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-600 rounded-full z-40 cursor-nwse-resize shadow"
                       />
                       <div
                         onMouseDown={(e) => handleHandleMouseDown(e, 'tr', el)}
-                        className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-[#2563EB] rounded-full z-40 cursor-nesw-resize shadow"
+                        className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-600 rounded-full z-40 cursor-nesw-resize shadow"
                       />
                       <div
                         onMouseDown={(e) => handleHandleMouseDown(e, 'bl', el)}
-                        className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-[#2563EB] rounded-full z-40 cursor-nesw-resize shadow"
+                        className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-600 rounded-full z-40 cursor-nesw-resize shadow"
                       />
                       <div
                         onMouseDown={(e) => handleHandleMouseDown(e, 'br', el)}
-                        className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-[#2563EB] rounded-full z-40 cursor-nwse-resize shadow"
+                        className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-600 rounded-full z-40 cursor-nwse-resize shadow"
                       />
                       
                       {!el.aspectRatioLocked && (
                         <>
                           <div
                             onMouseDown={(e) => handleHandleMouseDown(e, 'r', el)}
-                            className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-white border-2 border-[#2563EB] rounded-full z-40 cursor-ew-resize shadow"
+                            className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-white border-2 border-blue-600 rounded-full z-40 cursor-ew-resize shadow"
                           />
                           <div
                             onMouseDown={(e) => handleHandleMouseDown(e, 'b', el)}
-                            className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-[#2563EB] rounded-full z-40 cursor-ns-resize shadow"
+                            className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-600 rounded-full z-40 cursor-ns-resize shadow"
                           />
                         </>
                       )}
@@ -306,52 +306,52 @@ const DesignCanvas = ({ elements, selectedId, setSelectedId, updateElements }) =
       </div>
 
       {/* Bottom Floating Control Bar */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 bg-white/95 backdrop-blur-md border border-[#E5E7EB] rounded-2xl px-4 py-2 flex items-center gap-4 text-xs shadow-lg text-[#111827]">
-        <div className="flex items-center gap-1">
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl px-5 py-2.5 flex items-center gap-4 text-xs shadow-2xl text-slate-200">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setScale(s => Math.max(0.4, s - 0.1))}
-            className="p-1 text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F5F9] rounded-lg transition cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition cursor-pointer"
             title="Zoom Out"
           >
-            <ZoomOut size={14} />
+            <ZoomOut size={15} />
           </button>
 
-          <span className="font-mono text-xs font-bold text-[#111827] px-2">
+          <span className="font-mono text-xs font-bold text-slate-200 px-2">
             {Math.round(scale * 100)}%
           </span>
 
           <button
             onClick={() => setScale(s => Math.min(1.5, s + 0.1))}
-            className="p-1 text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F5F9] rounded-lg transition cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition cursor-pointer"
             title="Zoom In"
           >
-            <ZoomIn size={14} />
+            <ZoomIn size={15} />
           </button>
 
           <button
             onClick={() => setScale(1)}
-            className="p-1 text-[#6B7280] hover:text-[#111827] hover:bg-[#F1F5F9] rounded-lg transition cursor-pointer ml-1"
+            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition cursor-pointer ml-1"
             title="Reset Zoom to 100%"
           >
-            <Maximize2 size={14} />
+            <Maximize2 size={15} />
           </button>
         </div>
 
-        <div className="w-[1px] h-4 bg-[#E5E7EB]" />
+        <div className="w-[1px] h-4 bg-slate-800" />
 
         <button
           onClick={() => setShowGrid(g => !g)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold transition cursor-pointer ${
-            showGrid ? 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/20' : 'text-[#6B7280] hover:bg-[#F1F5F9]'
+          className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition cursor-pointer ${
+            showGrid ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-slate-400 hover:bg-slate-800'
           }`}
         >
           <Grid size={14} />
           Grid {showGrid ? 'On' : 'Off'}
         </button>
 
-        <div className="w-[1px] h-4 bg-[#E5E7EB]" />
+        <div className="w-[1px] h-4 bg-slate-800" />
 
-        <span className="font-mono text-[11px] font-bold text-[#6B7280]">
+        <span className="font-mono text-xs font-bold text-slate-400">
           800 × 600 px
         </span>
       </div>
@@ -361,3 +361,4 @@ const DesignCanvas = ({ elements, selectedId, setSelectedId, updateElements }) =
 };
 
 export default DesignCanvas;
+

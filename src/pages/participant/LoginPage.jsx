@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 import { isSupabaseConfigured } from '../../services/supabase';
-import { ArrowRight, Clock, Users, AlertCircle, AlertTriangle } from 'lucide-react';
+import { ArrowRight, Clock, Users, AlertCircle, AlertTriangle, Layers, Sparkles, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 const LoginPage = () => {
   const [rollNumber, setRollNumber] = useState('');
@@ -50,10 +50,11 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="h-screen w-full overflow-hidden bg-[#F9FAFB] text-[#111827] font-sans flex flex-col lg:grid lg:grid-cols-2">
+    <div className="min-h-screen w-full bg-[#0B0F17] text-slate-100 font-sans flex flex-col lg:grid lg:grid-cols-12 overflow-hidden relative">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
         .font-sans { font-family: 'Inter', system-ui, sans-serif; }
+<<<<<<< HEAD
         .font-mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
 
         @keyframes fadeSlideUp {
@@ -147,12 +148,18 @@ const LoginPage = () => {
             transform: none !important;
           }
         }
+=======
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+>>>>>>> e70b992 (264001 current code)
       `}</style>
 
-      {/* LEFT — form */}
-      <div className="relative flex-1 min-h-0 lg:h-full bg-white lg:border-r border-[#E5E7EB] flex flex-col px-6 sm:px-12 py-8 sm:py-10 lg:justify-center overflow-y-auto">
-        <div className="max-w-md mx-auto lg:mx-0 w-full flex-1 flex flex-col justify-between lg:justify-normal gap-0 lg:gap-10 lg:flex-none">
+      {/* Ambient background glow & grid lines */}
+      <div className="absolute -top-40 -left-40 w-[36rem] h-[36rem] bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/2 right-0 w-[40rem] h-[40rem] bg-indigo-600/15 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute bottom-0 left-1/3 w-[30rem] h-[30rem] bg-sky-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute inset-0 bg-grid-dark opacity-30 pointer-events-none" />
 
+<<<<<<< HEAD
           {/* Top block: brand */}
           <div className="enter-item enter-1 flex items-center justify-between">
             <div>
@@ -183,11 +190,61 @@ const LoginPage = () => {
                 <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-600" />
                 <p className="text-sm sm:text-xs font-medium text-amber-700 leading-relaxed">
                   Configuration warning: database credentials missing. Demo mode active.
+=======
+      {/* LEFT — Brand & Interactive Sign In Card (7 cols on lg) */}
+      <div className="relative lg:col-span-7 flex flex-col justify-between px-6 sm:px-12 py-10 lg:py-12 z-10 overflow-y-auto">
+        <div className="max-w-xl mx-auto lg:mx-0 w-full flex-1 flex flex-col justify-between gap-10">
+          
+          {/* Header Bar */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/25 ring-1 ring-white/20">
+                <Layers className="text-white" size={20} />
+              </div>
+              <div>
+                <span className="text-lg font-bold tracking-tight text-white block">
+                  Design-Event
+                </span>
+                <span className="text-xs text-slate-400 block font-medium">
+                  Poster Design 2026 · Round 1
+                </span>
+              </div>
+            </div>
+
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full font-mono text-xs font-semibold text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              LIVE COMPETITION
+            </span>
+          </div>
+
+          {/* Form Box */}
+          <div className="my-auto py-6 sm:py-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs font-semibold text-blue-400 mb-6">
+              <Sparkles size={14} /> Participant Portal
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+              Sign in to unlock <br />
+              <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-sky-400 bg-clip-text text-transparent">
+                your workspace
+              </span>
+            </h1>
+            <p className="text-base text-slate-400 leading-relaxed mb-8 max-w-lg">
+              Enter your registration roll number to launch the timed design workspace and submit your Round 1 entry.
+            </p>
+
+            {!isSupabaseConfigured && (
+              <div className="mb-6 flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-sm">
+                <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-400" />
+                <p className="leading-relaxed">
+                  <strong className="font-semibold text-amber-200">Demo mode active:</strong> Supabase credentials not detected. You can test with any 6-digit roll number (e.g., 274001).
+>>>>>>> e70b992 (264001 current code)
                 </p>
               </div>
             )}
 
             {error && (
+<<<<<<< HEAD
               <div className="mb-5 flex items-start gap-3 px-4 py-3.5 sm:py-3 bg-red-50 border border-red-200 rounded-lg animate-[scaleIn_0.3s_ease-out]">
                 <AlertCircle size={18} className="shrink-0 mt-0.5 text-red-600" />
                 <p className="text-sm sm:text-xs font-medium text-red-700 leading-relaxed">{error}</p>
@@ -210,27 +267,61 @@ const LoginPage = () => {
                   autoComplete="off"
                   className="roll-input w-full px-5 py-5 sm:py-4 bg-white border border-[#E5E7EB] rounded-xl font-mono text-lg sm:text-lg font-medium tracking-wide text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 focus:border-[#2563EB]"
                 />
+=======
+              <div className="mb-6 flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300 text-sm">
+                <AlertCircle size={18} className="shrink-0 mt-0.5 text-red-400" />
+                <p className="leading-relaxed font-medium">{error}</p>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6 max-w-md">
+              <div>
+                <label htmlFor="rollNumber" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2.5">
+                  Registration Roll Number
+                </label>
+                <div className="relative">
+                  <input
+                    id="rollNumber"
+                    type="text"
+                    placeholder="e.g. 274001"
+                    value={rollNumber}
+                    onChange={(e) => setRollNumber(e.target.value)}
+                    disabled={isSubmitting}
+                    autoFocus
+                    autoComplete="off"
+                    className="w-full px-5 py-4 bg-slate-900/90 border border-slate-700/80 rounded-xl font-mono text-xl font-semibold text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 transition-all shadow-inner"
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 text-xs font-mono">
+                    NUMERIC
+                  </div>
+                </div>
+>>>>>>> e70b992 (264001 current code)
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
+<<<<<<< HEAD
                 className="cta-button enter-item enter-5 w-full flex items-center justify-center gap-2 px-6 py-5 sm:py-4 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-base sm:text-base font-semibold text-white cursor-pointer"
+=======
+                className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-base font-semibold shadow-lg shadow-blue-600/30 transition-all cursor-pointer hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
+>>>>>>> e70b992 (264001 current code)
               >
                 {isSubmitting ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full motion-safe:animate-spin" />
-                    Connecting
+                    <span className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    Connecting to Session...
                   </>
                 ) : (
                   <>
-                    Enter competition
-                    <ArrowRight size={17} strokeWidth={2.5} />
+                    Enter Workspace
+                    <ArrowRight size={18} strokeWidth={2.2} />
                   </>
                 )}
               </button>
             </form>
 
+<<<<<<< HEAD
             <div className="enter-item enter-6 flex flex-wrap gap-3 mt-8 sm:mt-8">
               <span className="pill-chip inline-flex items-center gap-2 px-4 py-2.5 sm:py-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-full text-sm sm:text-sm font-medium text-[#374151]">
                 <Clock size={16} /> 25 min
@@ -275,10 +366,33 @@ const LoginPage = () => {
             <p className="text-sm font-medium text-[#9CA3AF] leading-relaxed">
               Trouble logging in? Check with your event coordinator before the round starts.
             </p>
+=======
+            <div className="flex flex-wrap items-center gap-4 mt-8 pt-8 border-t border-slate-800/80">
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-400 bg-slate-900/80 px-3.5 py-2 rounded-lg border border-slate-800">
+                <Clock size={15} className="text-blue-400" />
+                <span>25-Minute Timed Session</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-400 bg-slate-900/80 px-3.5 py-2 rounded-lg border border-slate-800">
+                <Users size={15} className="text-indigo-400" />
+                <span>2nd &amp; 3rd Year Individual</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-slate-500 border-t border-slate-800/60 pt-6">
+            <span>Design-Event Studio Platform v2.0</span>
+            <button
+              onClick={() => navigate('/admin/login')}
+              className="text-slate-400 hover:text-white transition-colors underline underline-offset-4 font-medium cursor-pointer"
+            >
+              Admin Console Sign In →
+            </button>
+>>>>>>> e70b992 (264001 current code)
           </div>
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* RIGHT — about the event (desktop only) */}
       <div className="relative hidden lg:flex lg:h-full items-center bg-[#F9FAFB] px-6 sm:px-12 py-10 overflow-hidden">
         {/* ambient glow accents */}
@@ -319,7 +433,70 @@ const LoginPage = () => {
           <p className="enter-item enter-6 mt-6 text-xs font-medium text-[#9CA3AF] leading-relaxed">
             Trouble logging in? Check with your event coordinator before the round starts.
           </p>
+=======
+      {/* RIGHT — Showcase & Stat Cards (5 cols on lg) */}
+      <div className="relative lg:col-span-5 hidden lg:flex flex-col justify-between p-12 bg-slate-900/60 border-l border-slate-800/80 backdrop-blur-xl z-10">
+        <div className="space-y-8 my-auto">
+          <div>
+            <span className="text-xs font-mono uppercase tracking-widest text-blue-400 block mb-2 font-semibold">
+              // EVENT SPRINT OVERVIEW
+            </span>
+            <h2 className="text-3xl font-bold text-white tracking-tight mb-3">
+              A high-stakes poster design challenge
+            </h2>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Test your design accuracy, speed, and execution under pressure across 10 layout challenges evaluated in real-time.
+            </p>
+          </div>
+
+          {/* 2x2 Feature Cards Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-5 rounded-2xl bg-slate-800/50 border border-slate-700/60 backdrop-blur-md">
+              <span className="text-xs font-semibold text-slate-400 block mb-1">TASKS</span>
+              <div className="text-3xl font-extrabold text-white">10</div>
+              <p className="text-xs text-slate-400 mt-1">Interactive layout goals</p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-slate-800/50 border border-slate-700/60 backdrop-blur-md">
+              <span className="text-xs font-semibold text-slate-400 block mb-1">DURATION</span>
+              <div className="text-3xl font-extrabold text-white">25m</div>
+              <p className="text-xs text-slate-400 mt-1">Strict auto-submit clock</p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-slate-800/50 border border-slate-700/60 backdrop-blur-md">
+              <span className="text-xs font-semibold text-slate-400 block mb-1">EVALUATION</span>
+              <div className="text-3xl font-extrabold text-blue-400">±3px</div>
+              <p className="text-xs text-slate-400 mt-1">Precision coordinate scoring</p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-slate-800/50 border border-slate-700/60 backdrop-blur-md">
+              <span className="text-xs font-semibold text-slate-400 block mb-1">FORMAT</span>
+              <div className="text-3xl font-extrabold text-indigo-400">Solo</div>
+              <p className="text-xs text-slate-400 mt-1">Individual competitor</p>
+            </div>
+          </div>
+
+          {/* Highlights List */}
+          <div className="p-5 rounded-2xl bg-blue-950/30 border border-blue-800/40 space-y-3">
+            <div className="flex items-center gap-3 text-xs text-slate-300">
+              <CheckCircle2 size={16} className="text-blue-400 shrink-0" />
+              <span>Real-time element canvas editing &amp; properties panel</span>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-slate-300">
+              <CheckCircle2 size={16} className="text-blue-400 shrink-0" />
+              <span>Automated server evaluation upon round completion</span>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-slate-300">
+              <ShieldCheck size={16} className="text-indigo-400 shrink-0" />
+              <span>Top 30 participants advance to Round 2</span>
+            </div>
+          </div>
+>>>>>>> e70b992 (264001 current code)
         </div>
+
+        <p className="text-xs text-slate-500">
+          Need help? Reach out to your event hall invigilator before initiating the round timer.
+        </p>
       </div>
     </div>
   );

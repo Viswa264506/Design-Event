@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
-import { getSubmissionResult, resetParticipantStatusService } from '../../services/supabase';
-import { CheckCircle2, LogOut } from 'lucide-react';
+import { getSubmissionResult } from '../../services/supabase';
+import { CheckCircle2, LogOut, Layers } from 'lucide-react';
 
 const ResultPage = () => {
-  const { profile, refreshProfile, logout } = useAuth();
-  const navigate = useNavigate();
+  const { profile, logout } = useAuth();
   const [submission, setSubmission] = useState(null);
   const [results, setResults] = useState([]);
   const [loadingResults, setLoadingResults] = useState(true);
-  const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -29,117 +26,123 @@ const ResultPage = () => {
     fetchResults();
   }, [profile]);
 
-  const handleRetake = async () => {
-    if (!profile?.id) return;
-    setIsResetting(true);
-    try {
-      localStorage.removeItem(`design_event_elements_${profile.id}`);
-      sessionStorage.removeItem('design_event_session_id');
-      sessionStorage.removeItem('design_event_last_submission_id');
-      await resetParticipantStatusService(profile.id);
-      await refreshProfile();
-      navigate('/challenge');
-    } catch (e) {
-      console.error(e);
-      setIsResetting(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-[#111827] font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500 selection:text-white relative overflow-x-hidden">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
         .font-sans { font-family: 'Inter', system-ui, sans-serif; }
-        .font-mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
       `}</style>
 
-      <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 py-8">
+      {/* Ambient background glows */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[40rem] h-[25rem] bg-blue-600/15 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-[30rem] h-[30rem] bg-indigo-600/10 rounded-full blur-[160px] pointer-events-none" />
+
+      <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 py-8 relative z-10">
 
         {/* NAVBAR */}
-        <nav className="pb-8 border-b border-[#E5E7EB]">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <span className="text-xl font-bold tracking-tight block text-[#111827]">
-                Design-Event
-              </span>
-              <span className="text-xs text-[#6B7280] block font-medium mt-0.5">
-                Poster Design 2026 · Round 1
-              </span>
+        <header className="pb-8 border-b border-slate-800/80">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/10">
+                <Layers className="text-white" size={20} />
+              </div>
+              <div>
+                <span className="text-lg font-bold tracking-tight text-white block">
+                  Design-Event
+                </span>
+                <span className="text-xs text-slate-400 block font-medium">
+                  Poster Design 2026 · Round 1 Evaluation
+                </span>
+              </div>
             </div>
 
             <button
               onClick={logout}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-[#F9FAFB] text-[#374151] border border-[#E5E7EB] rounded-full text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-full text-xs font-semibold transition-colors cursor-pointer"
               title="Exit platform"
             >
-              <LogOut size={14} /> <span>Exit</span>
+              <LogOut size={14} /> <span>Exit Platform</span>
             </button>
           </div>
-        </nav>
+        </header>
 
         {/* SUCCESS HEADER */}
         <section className="pt-10 flex flex-col items-center text-center">
-          <div className="w-14 h-14 rounded-full bg-[#F0FDF4] border border-[#BBF7D0] flex items-center justify-center text-[#16A34A] mb-4">
-            <CheckCircle2 size={26} />
+          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-5 shadow-lg shadow-emerald-500/10">
+            <CheckCircle2 size={32} />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#111827]">
-            Submission received!
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
+            Round 1 Submitted!
           </h1>
-          <p className="text-sm text-[#6B7280] mt-3">
-            Thank you, <span className="text-[#111827] font-semibold">{profile?.name}</span> ({profile?.roll_number}). Your design has been submitted successfully.
+          <p className="text-base text-slate-400 max-w-lg">
+            Great work, <strong className="text-white">{profile?.name}</strong> (<span className="font-mono text-blue-400">{profile?.roll_number}</span>). Your design has been evaluated server-side.
           </p>
         </section>
 
         {/* SCORE CARD */}
         <section className="pt-8">
-          <div className="max-w-lg mx-auto bg-white border border-[#E5E7EB] rounded-2xl p-8 text-center">
-            <span className="text-xs font-semibold text-[#9CA3AF] uppercase tracking-[0.2em] block mb-2">
-              Final score
+          <div className="max-w-md mx-auto bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl backdrop-blur-xl relative overflow-hidden">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-sky-400" />
+            
+            <span className="text-xs font-mono uppercase tracking-widest text-slate-400 block mb-3 font-semibold">
+              // ACCURACY SCORE EVALUATION
             </span>
-            <div className="flex items-baseline justify-center gap-1.5">
-              <span className="text-6xl sm:text-7xl font-bold text-[#2563EB] tracking-tight">
+            
+            <div className="flex items-baseline justify-center gap-2 my-2">
+              <span className="text-6xl sm:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-sky-400 tracking-tight font-mono">
                 {submission ? Number(submission.total_score).toFixed(1) : '0.0'}
               </span>
-              <span className="text-[#9CA3AF] font-semibold text-base font-mono">/ 100</span>
+              <span className="text-slate-500 font-bold text-xl font-mono">/ 100</span>
             </div>
-            <p className="text-xs text-[#374151] mt-4 font-medium uppercase tracking-widest font-mono inline-flex items-center">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#16A34A] mr-2 align-middle motion-safe:animate-pulse" />
-              Evaluation complete
-            </p>
+
+            <div className="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full font-mono text-xs font-semibold text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              AUTOMATED SERVER EVALUATION COMPLETE
+            </div>
           </div>
         </section>
 
         {/* SCORECARD BREAKDOWN */}
-        <section className="pt-10">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9CA3AF] mb-4 block">
-            Scorecard breakdown
-          </span>
+        <section className="pt-12">
+          <div className="flex items-center justify-between mb-5">
+            <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-semibold">
+              // TASK SCORECARD BREAKDOWN (10 WORKSPACES)
+            </span>
+            <span className="text-xs font-mono text-slate-500">
+              ±3px Coordinate Precision Window
+            </span>
+          </div>
 
           {loadingResults ? (
-            <div className="flex justify-center py-10">
-              <div className="w-5 h-5 border-2 border-[#2563EB] border-t-transparent rounded-full motion-safe:animate-spin" />
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-xs font-mono text-slate-400">Loading task scores...</span>
             </div>
           ) : results.length === 0 ? (
-            <div className="text-center py-10 text-sm font-medium text-[#6B7280] bg-white border border-[#E5E7EB] rounded-xl">
+            <div className="text-center py-10 text-sm font-medium text-slate-400 bg-slate-900 border border-slate-800 rounded-2xl">
               No individual task breakdown generated.
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="grid sm:grid-cols-2 gap-4">
               {results.map((res, index) => (
-                <div key={res.id} className="p-5 bg-white border border-[#E5E7EB] rounded-xl flex items-center justify-between">
-                  <div className="min-w-0">
-                    <h4 className="text-sm font-semibold text-[#111827]">
-                      Task {index + 1}: {res.task_id.replace('task_', '')}
+                <div key={res.id} className="p-5 bg-slate-900/70 border border-slate-800/80 rounded-2xl flex items-center justify-between hover:border-slate-700 transition-all backdrop-blur-sm">
+                  <div className="min-w-0 pr-3">
+                    <h4 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+                      <span className="font-mono text-xs text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+                        #{String(index + 1).padStart(2, '0')}
+                      </span>
+                      Task {res.task_id.replace('task_', '')}
                     </h4>
-                    <p className="text-xs mt-1 max-w-[220px] truncate font-medium text-[#9CA3AF]">
-                      {res.evaluation_details?.feedback || 'Evaluated'}
+                    <p className="text-xs mt-1.5 max-w-[220px] truncate text-slate-400 font-medium">
+                      {res.evaluation_details?.feedback || 'Evaluated accuracy'}
                     </p>
                   </div>
-                  <div className="text-right shrink-0 ml-3">
-                    <span className="text-2xl font-bold text-[#111827]">
+                  <div className="text-right shrink-0">
+                    <span className="text-2xl font-bold font-mono text-white">
                       {Number(res.score).toFixed(1)}
                     </span>
-                    <span className="text-xs font-mono font-medium text-[#9CA3AF]"> / 10</span>
+                    <span className="text-xs font-mono text-slate-500"> / 10</span>
                   </div>
                 </div>
               ))}
@@ -148,16 +151,16 @@ const ResultPage = () => {
         </section>
 
         {/* FOOTER META / EXIT */}
-        <section className="pt-10 pb-12 text-center border-t border-[#E5E7EB] mt-8">
-          <p className="text-[11px] font-medium text-[#9CA3AF] uppercase tracking-widest mb-3 font-mono">
-            Round 1 evaluation finalized · Participant: {profile?.roll_number}
+        <section className="pt-10 pb-12 text-center border-t border-slate-800/80 mt-12">
+          <p className="text-xs font-mono text-slate-500 mb-4">
+            ROUND 1 EVALUATION FINALIZED · COMPETITOR ID: {profile?.roll_number}
           </p>
           <button
             type="button"
             onClick={logout}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#6B7280] hover:text-[#2563EB] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
           >
-            <LogOut size={14} /> Exit platform
+            <LogOut size={14} /> Exit Platform
           </button>
         </section>
       </div>
