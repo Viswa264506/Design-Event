@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import * as XLSX from 'xlsx';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../services/AuthContext';
 import { 
   getAdminStatsService, 
@@ -29,10 +28,7 @@ import {
   X,
   AlertCircle,
   Trash2,
-  ShieldCheck,
-  FileSpreadsheet,
-  Upload,
-  CheckCheck
+  ShieldCheck
 } from 'lucide-react';
 
 const AdminDashboardPage = () => {
@@ -73,17 +69,6 @@ const AdminDashboardPage = () => {
   const [addError, setAddError] = useState('');
   const [addSuccess, setAddSuccess] = useState('');
   const [isSubmittingParticipant, setIsSubmittingParticipant] = useState(false);
-
-  // Import Excel Modal State
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [importFileName, setImportFileName] = useState('');
-  const [importParsing, setImportParsing] = useState(false);
-  const [importParseError, setImportParseError] = useState('');
-  const [importRows, setImportRows] = useState([]); // parsed + validated rows
-  const [importing, setImporting] = useState(false);
-  const [importProgress, setImportProgress] = useState(0);
-  const [importResult, setImportResult] = useState(null); // { total, imported, duplicates, invalid }
-  const importFileInputRef = useRef(null);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -157,7 +142,7 @@ const AdminDashboardPage = () => {
 
   const handleClearAllParticipants = async () => {
     const confirmClear = window.confirm(
-      "DANGER: Are you sure you want to PURGE & DELETE ALL participants from the database?\n\nThis will remove all pre-seeded (274001-274065) and registered student records!"
+      "DANGER: Are you sure you want to PURGE & DELETE ALL participants from the database?\n\nThis will remove all pre-seeded (274001-274070 & 284001-284070) and registered student records!"
     );
     if (!confirmClear) return;
 
@@ -204,182 +189,6 @@ const AdminDashboardPage = () => {
         setAddSuccess('');
       }, 1200);
     }
-  };
-
-  // ---------- IMPORT EXCEL: helpers ----------
-
-  const normalizeHeaderKey = (h) =>
-    String(h || '').trim().toLowerCase().replace(/[\s_-]+/g, ' ');
-
-  const REGISTER_HEADER_ALIASES = ['register number', 'register no', 'reg number', 'reg no', 'roll number', 'roll no', 'rollno', 'batch number', 'batch number register number'];
-  const NAME_HEADER_ALIASES = ['participant name', 'name', 'full name', 'student name'];
-  const YEAR_HEADER_ALIASES = ['year', 'year of study', 'yr'];
-
-  const normalizeYearValue = (raw) => {
-    if (raw === null || raw === undefined) return null;
-    const str = String(raw).trim().toLowerCase();
-    if (!str) return null;
-    if (str.includes('3') || str.startsWith('iii') || str.includes('third')) return 3;
-    if (str.includes('2') || str.startsWith('ii') || str.includes('second')) return 2;
-    return null;
-  };
-
-  const resetImportState = () => {
-    setImportFileName('');
-    setImportParseError('');
-    setImportRows([]);
-    setImportResult(null);
-    setImportProgress(0);
-    if (importFileInputRef.current) importFileInputRef.current.value = '';
-  };
-
-  const handleImportFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setImportParseError('');
-    setImportResult(null);
-    setImportRows([]);
-    setImportFileName(file.name);
-    setImportParsing(true);
-
-    try {
-      const buffer = await file.arrayBuffer();
-      const workbook = XLSX.read(buffer, { type: 'array' });
-      const firstSheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[firstSheetName];
-      const rawRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', blankrows: false });
-
-      if (!rawRows || rawRows.length === 0) {
-        setImportParseError('The uploaded file appears to be empty.');
-        setImportParsing(false);
-        return;
-      }
-
-      const headerRow = rawRows[0].map(normalizeHeaderKey);
-      const registerColIdx = headerRow.findIndex((h) => REGISTER_HEADER_ALIASES.includes(h));
-      const nameColIdx = headerRow.findIndex((h) => NAME_HEADER_ALIASES.includes(h));
-      const yearColIdx = headerRow.findIndex((h) => YEAR_HEADER_ALIASES.includes(h));
-
-      if (registerColIdx === -1 || nameColIdx === -1 || yearColIdx === -1) {
-        setImportParseError(
-          'Could not find required columns. Please make sure the sheet has "Register Number", "Participant Name" and "Year" headers in the first row.'
-        );
-        setImportParsing(false);
-        return;
-      }
-
-      const dataRows = rawRows.slice(1);
-      const existingRollSet = new Set(
-        leaderboard.map((p) => (p.roll_number || '').trim().toUpperCase())
-      );
-      const seenInFile = new Set();
-
-      const parsed = dataRows.map((row, idx) => {
-        const rollNumberRaw = row[registerColIdx];
-        const nameRaw = row[nameColIdx];
-        const yearRaw = row[yearColIdx];
-
-        const rollNumber = String(rollNumberRaw ?? '').trim().toUpperCase();
-        const name = String(nameRaw ?? '').trim();
-        const year = normalizeYearValue(yearRaw);
-
-        let status = 'valid';
-        let reason = '';
-
-        if (!rollNumber || !name || !year) {
-          status = 'invalid';
-          const missing = [];
-          if (!rollNumber) missing.push('Register Number');
-          if (!name) missing.push('Name');
-          if (!year) missing.push('Year');
-          reason = `Missing/invalid: ${missing.join(', ')}`;
-        } else if (seenInFile.has(rollNumber)) {
-          status = 'duplicate';
-          reason = 'Duplicate register number within file';
-        } else if (existingRollSet.has(rollNumber)) {
-          status = 'duplicate';
-          reason = 'Already registered in roster';
-        }
-
-        if (status !== 'invalid' && rollNumber) {
-          seenInFile.add(rollNumber);
-        }
-
-        return {
-          rowIndex: idx + 2, // +2 accounts for header row + 1-based indexing
-          rollNumber,
-          name,
-          yearRaw: String(yearRaw ?? '').trim(),
-          year,
-          status, // 'valid' | 'duplicate' | 'invalid'
-          reason,
-        };
-      });
-
-      setImportRows(parsed);
-    } catch (err) {
-      console.error('Excel parse error:', err);
-      setImportParseError('Failed to read the file. Please upload a valid .xlsx or .xls file.');
-    } finally {
-      setImportParsing(false);
-    }
-  };
-
-  const handleConfirmImport = async () => {
-    const validRows = importRows.filter((r) => r.status === 'valid');
-    if (validRows.length === 0) return;
-
-    setImporting(true);
-    setImportProgress(0);
-
-    let imported = 0;
-    let failed = 0;
-    const rowUpdates = new Map();
-
-    for (let i = 0; i < validRows.length; i++) {
-      const row = validRows[i];
-      // eslint-disable-next-line no-await-in-loop
-      const { error } = await addParticipantService({
-        rollNumber: row.rollNumber,
-        name: row.name,
-        year: row.year,
-      });
-
-      if (error) {
-        failed += 1;
-        rowUpdates.set(row.rowIndex, {
-          status: error.message?.toLowerCase().includes('already registered') ? 'duplicate' : 'invalid',
-          reason: error.message || 'Failed to import',
-        });
-      } else {
-        imported += 1;
-      }
-      setImportProgress(i + 1);
-    }
-
-    // Reflect any failures discovered during the actual import (e.g. race conditions)
-    setImportRows((prev) =>
-      prev.map((r) => (rowUpdates.has(r.rowIndex) ? { ...r, ...rowUpdates.get(r.rowIndex) } : r))
-    );
-
-    const duplicates = importRows.filter((r) => r.status === 'duplicate').length + [...rowUpdates.values()].filter(v => v.status === 'duplicate').length;
-    const invalid = importRows.filter((r) => r.status === 'invalid').length + [...rowUpdates.values()].filter(v => v.status === 'invalid').length;
-
-    setImportResult({
-      total: importRows.length,
-      imported,
-      duplicates,
-      invalid,
-    });
-
-    setImporting(false);
-    await fetchDashboardData();
-  };
-
-  const handleCloseImportModal = () => {
-    setShowImportModal(false);
-    resetImportState();
   };
 
   useEffect(() => {
@@ -955,16 +764,6 @@ const AdminDashboardPage = () => {
                 <span>Add Participant</span>
               </button>
 
-              <button
-                onClick={() => {
-                  resetImportState();
-                  setShowImportModal(true);
-                }}
-                className="flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-[#F9FAFB] border border-[#E5E7EB] text-xs font-semibold text-[#374151] rounded-full shadow-sm transition cursor-pointer"
-              >
-                <FileSpreadsheet size={14} className="text-indigo-500" />
-                <span>Import Excel</span>
-              </button>
 
               <div className="relative flex-1 md:w-56">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
@@ -1246,209 +1045,7 @@ const AdminDashboardPage = () => {
         </div>
       )}
 
-      {/* IMPORT EXCEL MODAL */}
-      {showImportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-2xl">
-            <div className="relative bg-white border border-[#E5E7EB] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
-              {/* Modal Header */}
-              <div className="px-6 py-4 border-b border-[#F1F1F1] flex items-center justify-between bg-[#F9FAFB] shrink-0">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center shadow-sm shadow-indigo-500/20">
-                    <FileSpreadsheet size={16} />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-[#111827]">Import Participants from Excel</h3>
-                    <p className="text-xs text-[#9CA3AF]">Bulk register students using an .xlsx / .xls file</p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleCloseImportModal}
-                  className="p-1.5 rounded-full text-[#9CA3AF] hover:text-[#111827] hover:bg-white transition cursor-pointer"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              {/* Modal Body */}
-              <div className="p-6 space-y-4 overflow-y-auto">
-
-                {/* Step 1: File Upload */}
-                {!importResult && (
-                  <div>
-                    <label className="block text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-1.5">
-                      Excel File <span className="text-red-500">*</span>
-                    </label>
-
-                    <div className="flex items-center gap-3">
-                      <label className="flex-1 flex items-center gap-3 px-4 py-3 bg-[#F9FAFB] border border-dashed border-[#D1D5DB] rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/30 transition">
-                        <Upload size={16} className="text-indigo-500 shrink-0" />
-                        <span className="text-xs font-medium text-[#374151] truncate">
-                          {importFileName || 'Click to choose .xlsx / .xls file'}
-                        </span>
-                        <input
-                          ref={importFileInputRef}
-                          type="file"
-                          accept=".xlsx,.xls"
-                          onChange={handleImportFileChange}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-
-                    <p className="text-[11px] text-[#9CA3AF] mt-2">
-                      Expected columns: <span className="font-mono font-semibold text-[#6B7280]">Register Number | Participant Name | Year</span>
-                      {' '}e.g. <span className="font-mono">264061 | Viswa | 3rd Year</span>
-                    </p>
-
-                    {importParsing && (
-                      <div className="mt-3 flex items-center gap-2 text-xs font-medium text-indigo-600">
-                        <span className="w-3.5 h-3.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-                        Reading file...
-                      </div>
-                    )}
-
-                    {importParseError && (
-                      <div className="mt-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-medium flex items-center gap-2">
-                        <AlertCircle size={16} className="shrink-0" />
-                        <span>{importParseError}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Step 2: Preview */}
-                {!importResult && importRows.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                      <span className="px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#374151]">
-                        {importRows.length} total
-                      </span>
-                      <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {importRows.filter(r => r.status === 'valid').length} ready to import
-                      </span>
-                      <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                        {importRows.filter(r => r.status === 'duplicate').length} duplicates
-                      </span>
-                      <span className="px-2.5 py-1 rounded-full bg-red-50 text-red-600 border border-red-200">
-                        {importRows.filter(r => r.status === 'invalid').length} invalid
-                      </span>
-                    </div>
-
-                    <div className="border border-[#E5E7EB] rounded-xl overflow-hidden">
-                      <div className="max-h-64 overflow-y-auto">
-                        <table className="w-full text-xs">
-                          <thead className="bg-[#F9FAFB] sticky top-0">
-                            <tr className="text-left text-[10px] uppercase tracking-wide text-[#9CA3AF] font-semibold">
-                              <th className="px-3 py-2">Register No.</th>
-                              <th className="px-3 py-2">Name</th>
-                              <th className="px-3 py-2">Year</th>
-                              <th className="px-3 py-2">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-[#F1F1F1]">
-                            {importRows.map((row) => (
-                              <tr key={row.rowIndex} className={row.status !== 'valid' ? 'bg-red-50/30' : ''}>
-                                <td className="px-3 py-2 font-mono font-semibold text-[#111827]">{row.rollNumber || '—'}</td>
-                                <td className="px-3 py-2 text-[#374151]">{row.name || '—'}</td>
-                                <td className="px-3 py-2 text-[#374151]">{row.year ? `${row.year === 3 ? '3rd' : '2nd'} Year` : (row.yearRaw || '—')}</td>
-                                <td className="px-3 py-2">
-                                  {row.status === 'valid' ? (
-                                    <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase">
-                                      Valid
-                                    </span>
-                                  ) : (
-                                    <span
-                                      title={row.reason}
-                                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase border ${
-                                        row.status === 'duplicate'
-                                          ? 'text-amber-700 bg-amber-50 border-amber-200'
-                                          : 'text-red-600 bg-red-50 border-red-200'
-                                      }`}
-                                    >
-                                      {row.status === 'duplicate' ? 'Duplicate' : 'Invalid'}
-                                    </span>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {importing && (
-                      <div className="flex items-center gap-2 text-xs font-medium text-indigo-600">
-                        <span className="w-3.5 h-3.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-                        Importing {importProgress} of {importRows.filter(r => r.status === 'valid').length}...
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Step 3: Result Summary */}
-                {importResult && (
-                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
-                    <CheckCheck size={18} className="text-emerald-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-bold text-emerald-800">Import complete</p>
-                      <p className="text-xs text-emerald-700 mt-1 font-semibold">
-                        {importResult.total} total | {importResult.imported} imported | {importResult.duplicates} duplicates
-                        {importResult.invalid > 0 ? ` | ${importResult.invalid} invalid` : ''}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-              </div>
-
-              {/* Modal Footer / Actions */}
-              <div className="px-6 py-4 border-t border-[#F1F1F1] flex items-center justify-end gap-3 shrink-0 bg-white">
-                {!importResult ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={handleCloseImportModal}
-                      className="px-4 py-2.5 bg-[#F3F4F6] hover:bg-[#E5E7EB] text-xs font-semibold text-[#374151] rounded-full transition cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      disabled={importing || importRows.filter(r => r.status === 'valid').length === 0}
-                      onClick={handleConfirmImport}
-                      className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 disabled:opacity-50 text-xs font-semibold text-white rounded-full shadow-lg shadow-indigo-500/25 transition-all cursor-pointer flex items-center gap-2 active:scale-[0.98]"
-                    >
-                      {importing ? (
-                        <>
-                          <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                          Importing...
-                        </>
-                      ) : (
-                        <>
-                          <Upload size={14} />
-                          Import Participants{importRows.length > 0 ? ` (${importRows.filter(r => r.status === 'valid').length})` : ''}
-                        </>
-                      )}
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleCloseImportModal}
-                    className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-xs font-semibold text-white rounded-full shadow-lg shadow-indigo-500/25 transition-all cursor-pointer"
-                  >
-                    Done
-                  </button>
-                )}
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* FOOTER */}
       <footer className="border-t border-[#E5E7EB] py-4 px-6 text-center text-xs text-[#9CA3AF] bg-white font-medium">
